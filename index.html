@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#140a10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Baralho cigano de 36 cartas: tiragens, interpretação por tema e diário de leituras. Funciona offline.">
+<title>Baralho Cigano — 36 cartas</title>
+<style>
+:root{
+  --breu:#140a10;
+  --veludo:#25101a;
+  --vinho:#3d1424;
+  --latao:#c9a24a;
+  --latao-fraco:#8a6c2e;
+  --marfim:#ede4d3;
+  --marfim-fraco:#a99a86;
+  --verde:#2f5d4e;
+  --sangue:#9c3030;
+  --raio:14px;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+  --sans:"Avenir Next","Segoe UI",Roboto,system-ui,-apple-system,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--breu);
+  color:var(--marfim);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.55;
+  min-height:100vh;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+  overflow-x:hidden;
+}
+/* atmosfera: toalha de veludo à luz de vela */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(156,48,48,.20), transparent 60%),
+    radial-gradient(90% 60% at 15% 105%, rgba(47,93,78,.16), transparent 65%),
+    radial-gradient(70% 50% at 85% 40%, rgba(201,162,74,.07), transparent 70%),
+    linear-gradient(175deg,#1c0c15 0%,var(--breu) 55%,#0e060a 100%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.35;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.20) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);
+}
+
+/* ---------- cabeçalho ---------- */
+header{
+  text-align:center;
+  padding:calc(26px + env(safe-area-inset-top)) 20px 18px;
+}
+.emblema{
+  font-size:19px;color:var(--latao);letter-spacing:.5em;margin-bottom:10px;opacity:.85;
+}
+h1{
+  font-family:var(--serif);
+  font-weight:400;
+  font-size:clamp(28px,8vw,40px);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  margin:0;
+  color:var(--marfim);
+  text-shadow:0 2px 24px rgba(201,162,74,.25);
+}
+.subtitulo{
+  font-family:var(--serif);font-style:italic;
+  color:var(--marfim-fraco);font-size:14px;margin-top:6px;letter-spacing:.04em;
+}
+.regua{
+  width:min(320px,72vw);height:1px;margin:16px auto 0;
+  background:linear-gradient(90deg,transparent,var(--latao-fraco),transparent);
+}
+
+main{max-width:760px;margin:0 auto;padding:0 16px}
+.tela{display:none;animation:surge .45s ease both}
+.tela.ativa{display:block}
+@keyframes surge{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- blocos ---------- */
+.bloco{
+  background:linear-gradient(165deg,rgba(61,20,36,.62),rgba(20,10,16,.72));
+  border:1px solid rgba(201,162,74,.22);
+  border-radius:var(--raio);
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 10px 34px rgba(0,0,0,.45);
+}
+.rotulo{
+  font-family:var(--serif);
+  font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--latao);margin-bottom:12px;display:block;
+}
+.rotulo .passo{color:var(--latao-fraco);margin-right:8px}
+
+/* ---------- fichas de tema / tiragem ---------- */
+.fichas{display:flex;flex-wrap:wrap;gap:8px}
+.ficha{
+  font-family:var(--sans);font-size:14px;
+  background:rgba(237,228,211,.05);
+  color:var(--marfim);
+  border:1px solid rgba(201,162,74,.28);
+  border-radius:999px;
+  padding:9px 15px;
+  cursor:pointer;
+  transition:background .18s,border-color .18s,color .18s,transform .12s;
+}
+.ficha:hover{border-color:var(--latao)}
+.ficha:active{transform:scale(.96)}
+.ficha[aria-pressed="true"]{
+  background:var(--latao);border-color:var(--latao);color:#1a0d06;font-weight:600;
+}
+.ficha .glifo{margin-right:7px;filter:sepia(1) saturate(1.6) hue-rotate(-12deg) brightness(1.05)}
+.ficha[aria-pressed="true"] .glifo{filter:none}
+
+.opcao-tiragem{
+  display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
+  background:rgba(237,228,211,.04);
+  border:1px solid rgba(201,162,74,.20);
+  border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;
+  color:var(--marfim);font-family:var(--sans);font-size:15px;
+  transition:border-color .18s,background .18s;
+}
+.opcao-tiragem:hover{border-color:var(--latao)}
+.opcao-tiragem[aria-pressed="true"]{background:rgba(201,162,74,.14);border-color:var(--latao)}
+.opcao-tiragem .qtd{
+  font-family:var(--serif);color:var(--latao);font-size:13px;letter-spacing:.1em;
+  min-width:64px;flex-shrink:0;
+}
+.opcao-tiragem .desc{display:block;color:var(--marfim-fraco);font-size:12.5px;line-height:1.4}
+
+textarea,input[type=text]{
+  width:100%;background:rgba(10,5,8,.55);color:var(--marfim);
+  border:1px solid rgba(201,162,74,.22);border-radius:10px;
+  padding:12px;font-family:var(--sans);font-size:15px;resize:vertical;
+}
+textarea:focus,input:focus{outline:2px solid var(--latao);outline-offset:1px;border-color:transparent}
+textarea::placeholder,input::placeholder{color:#6d6156}
+.ajuda{font-size:12.5px;color:var(--marfim-fraco);margin-top:8px}
+
+/* ---------- botões ---------- */
+.botao{
+  display:block;width:100%;
+  font-family:var(--serif);font-size:15px;letter-spacing:.22em;text-transform:uppercase;
+  background:linear-gradient(175deg,#d9b45c,#a9853a);
+  color:#1a0d06;font-weight:700;
+  border:none;border-radius:12px;padding:16px;cursor:pointer;
+  box-shadow:0 6px 22px rgba(201,162,74,.28);
+  transition:transform .12s,box-shadow .2s,filter .2s;
+}
+.botao:hover{filter:brightness(1.06)}
+.botao:active{transform:translateY(1px) scale(.995)}
+.botao[disabled]{filter:grayscale(.7) brightness(.6);cursor:not-allowed;box-shadow:none}
+.botao.discreto{
+  background:transparent;color:var(--latao);border:1px solid rgba(201,162,74,.35);
+  box-shadow:none;font-size:13px;padding:12px;
+}
+.botao.discreto:hover{background:rgba(201,162,74,.10)}
+.linha-botoes{display:flex;gap:8px;flex-wrap:wrap}
+.linha-botoes .botao{flex:1 1 140px;width:auto}
+button:focus-visible,.ficha:focus-visible,.carta:focus-visible,.aba:focus-visible{
+  outline:2px solid var(--latao);outline-offset:3px;border-radius:8px;
+}
+
+/* ---------- mesa de cartas ---------- */
+.mesa{
+  display:grid;gap:10px;justify-content:center;
+  grid-template-columns:repeat(auto-fit,minmax(96px,124px));
+  margin:4px 0 20px;
+}
+.mesa.real{grid-template-columns:repeat(6,1fr);gap:5px}
+@media(max-width:379px){.mesa.real .frente .nome{display:none}}
+
+.carta{
+  position:relative;aspect-ratio:5/8;perspective:1100px;
+  background:none;border:none;padding:0;cursor:pointer;
+  animation:distribuir .5s cubic-bezier(.2,.9,.25,1) both;
+}
+@keyframes distribuir{
+  from{opacity:0;transform:translateY(26px) rotate(-6deg) scale(.9)}
+  to{opacity:1;transform:none}
+}
+.carta-giro{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform .75s cubic-bezier(.2,.8,.2,1);
+}
+.carta.aberta .carta-giro{transform:rotateY(180deg)}
+.face{
+  position:absolute;inset:0;border-radius:9px;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.55);
+}
+
+/* verso em brocado — o elemento assinatura */
+.verso{
+  background:
+    repeating-conic-gradient(from 45deg at 50% 50%, transparent 0 25%, rgba(201,162,74,.13) 0 50%) 0 0/16px 16px,
+    radial-gradient(circle at 50% 42%, rgba(201,162,74,.22), transparent 62%),
+    linear-gradient(160deg,#4a1628,#1a0810);
+  border:1px solid rgba(201,162,74,.45);
+  display:grid;place-items:center;
+}
+.verso::before{
+  content:"";position:absolute;inset:7px;border-radius:5px;
+  border:1px solid rgba(201,162,74,.35);
+  box-shadow:inset 0 0 0 3px rgba(20,8,14,.5),inset 0 0 22px rgba(0,0,0,.55);
+}
+.verso .rosacea{
+  font-size:24px;color:var(--latao);opacity:.9;
+  text-shadow:0 0 14px rgba(201,162,74,.55);
+}
+.carta:hover .verso{filter:brightness(1.12)}
+
+/* frente */
+.frente{
+  transform:rotateY(180deg);
+  background:linear-gradient(168deg,#f2ead9,#ddd0b6 60%,#cdbe9f);
+  border:1px solid var(--latao-fraco);
+  color:#2a1a12;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 6px;text-align:center;
+}
+.frente::before{
+  content:"";position:absolute;inset:5px;border:1px solid rgba(138,108,46,.55);border-radius:5px;pointer-events:none;
+}
+.frente .num{
+  position:absolute;top:6px;left:9px;
+  font-family:var(--serif);font-size:12px;color:#7a5c22;letter-spacing:.05em;
+}
+.frente .naipe{
+  position:absolute;top:6px;right:9px;
+  font-family:var(--serif);font-size:12px;font-weight:600;
+}
+.naipe.vermelho{color:var(--sangue)}
+.naipe.preto{color:#2a1a12}
+.frente .glifo{
+  font-size:clamp(26px,7vw,34px);line-height:1;margin-bottom:6px;
+  filter:sepia(.9) saturate(1.5) hue-rotate(-12deg) contrast(1.05);
+}
+.frente .nome{
+  font-family:var(--serif);font-size:12.5px;line-height:1.2;
+  text-transform:uppercase;letter-spacing:.07em;color:#3a2515;
+}
+.mesa.real .frente .glifo{font-size:20px;margin-bottom:3px}
+.mesa.real .frente .nome{font-size:9px;letter-spacing:.03em}
+.mesa.real .frente .num,.mesa.real .frente .naipe{font-size:9px;top:3px}
+.mesa.real .frente .num{left:5px}.mesa.real .frente .naipe{right:5px}
+.mesa.real .verso .rosacea{font-size:15px}
+.mesa.real .carta{aspect-ratio:5/7.4}
+
+.posicao{
+  display:block;text-align:center;font-family:var(--serif);
+  font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--latao);margin-bottom:6px;min-height:14px;
+}
+.carta-slot{display:flex;flex-direction:column}
+.destacada .verso,.destacada .frente{box-shadow:0 0 0 2px var(--latao),0 8px 22px rgba(0,0,0,.6)}
+
+/* ---------- leitura ---------- */
+.pergunta-eco{
+  font-family:var(--serif);font-style:italic;font-size:17px;
+  color:var(--marfim);text-align:center;margin:0 0 4px;
+}
+.tema-eco{
+  text-align:center;font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--latao);margin-bottom:18px;
+}
+.leitura h3{
+  font-family:var(--serif);font-weight:400;font-size:18px;
+  margin:0 0 3px;color:var(--marfim);letter-spacing:.02em;
+}
+.leitura .cargo{
+  font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--latao);
+  display:block;margin-bottom:6px;
+}
+.verbete{
+  border-left:2px solid rgba(201,162,74,.45);
+  padding:2px 0 2px 14px;margin-bottom:18px;
+}
+.verbete:last-child{margin-bottom:0}
+.verbete p{margin:0 0 6px;font-size:15px}
+.chaves{font-size:12.5px;color:var(--marfim-fraco);font-style:italic}
+.tom{
+  display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;
+}
+.tom.luz{background:rgba(47,93,78,.45);color:#9fd6bf}
+.tom.neutra{background:rgba(201,162,74,.20);color:var(--latao)}
+.tom.sombra{background:rgba(156,48,48,.32);color:#e79b9b}
+
+.sintese{
+  background:linear-gradient(165deg,rgba(201,162,74,.14),rgba(20,10,16,.55));
+  border:1px solid rgba(201,162,74,.35);
+}
+.sintese p{font-family:var(--serif);font-size:16.5px;line-height:1.62;margin:0 0 10px}
+.sintese p:last-child{margin-bottom:0}
+
+.veredito{
+  text-align:center;font-family:var(--serif);
+  font-size:clamp(34px,12vw,52px);letter-spacing:.2em;text-transform:uppercase;
+  margin:6px 0 4px;
+}
+.veredito.sim{color:#7fd4b4}
+.veredito.nao{color:#e08484}
+.veredito.talvez{color:var(--latao)}
+.veredito-nota{text-align:center;color:var(--marfim-fraco);font-size:13.5px;margin:0}
+
+.semente{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12px;color:var(--marfim-fraco);
+}
+.semente code{
+  background:rgba(10,5,8,.6);border:1px solid rgba(201,162,74,.22);
+  padding:4px 9px;border-radius:6px;color:var(--latao);user-select:all;
+}
+
+/* ---------- prosa da leitura ---------- */
+.prosa p{
+  font-family:var(--serif);font-size:16.5px;line-height:1.68;
+  margin:0 0 15px;color:var(--marfim);
+}
+.prosa p:last-child{margin-bottom:0}
+.prosa .marca{color:var(--latao);font-style:italic}
+.prosa .assina{
+  display:block;font-family:var(--sans);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--latao-fraco);margin-top:5px;
+}
+.prosa .abre{
+  color:var(--marfim-fraco);font-style:italic;font-size:15.5px;
+  border-bottom:1px solid rgba(201,162,74,.2);padding-bottom:14px;
+}
+.prosa .fecha{
+  border-top:1px solid rgba(201,162,74,.2);padding-top:15px;margin-top:19px;
+}
+.prosa .ressalva{
+  font-family:var(--sans);font-size:12.5px;line-height:1.5;
+  color:var(--marfim-fraco);background:rgba(156,48,48,.12);
+  border-left:2px solid var(--sangue);padding:10px 12px;border-radius:0 8px 8px 0;
+}
+.tira{display:flex;flex-direction:column;gap:6px}
+.pastilha{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  background:rgba(237,228,211,.04);border:1px solid rgba(201,162,74,.18);
+  border-radius:10px;padding:10px 12px;cursor:pointer;color:var(--marfim);
+  font-family:var(--sans);transition:border-color .18s,background .18s;
+}
+.pastilha:hover{border-color:var(--latao);background:rgba(201,162,74,.08)}
+.pastilha .glifo{font-size:19px;filter:sepia(1) saturate(1.5) hue-rotate(-12deg);flex-shrink:0}
+.pastilha strong{font-size:13.5px;font-weight:600;display:block}
+.pastilha-sub{display:block;font-size:11.5px;color:var(--marfim-fraco);line-height:1.35}
+.pastilha .tom{margin-left:auto;flex-shrink:0}
+
+/* ---------- baralho / diário ---------- */
+.grade-baralho{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.item-baralho{
+  display:flex;gap:10px;align-items:center;text-align:left;
+  background:rgba(237,228,211,.04);border:1px solid rgba(201,162,74,.18);
+  border-radius:10px;padding:10px;cursor:pointer;color:var(--marfim);
+  font-family:var(--sans);font-size:13px;transition:border-color .18s,background .18s;
+}
+.item-baralho:hover{border-color:var(--latao);background:rgba(201,162,74,.08)}
+.item-baralho .glifo{font-size:20px;filter:sepia(1) saturate(1.5) hue-rotate(-12deg)}
+.item-baralho .n{font-family:var(--serif);color:var(--latao-fraco);font-size:11px}
+.item-baralho strong{display:block;font-weight:600;font-size:13.5px}
+
+.registro{
+  background:rgba(237,228,211,.04);border:1px solid rgba(201,162,74,.18);
+  border-radius:10px;padding:14px;margin-bottom:10px;
+}
+.registro .quando{font-family:var(--mono);font-size:11px;color:var(--marfim-fraco)}
+.registro .titulo{font-family:var(--serif);font-size:16px;margin:4px 0 6px}
+.registro .cartas{font-size:13px;color:var(--marfim-fraco)}
+.registro .acoes{display:flex;gap:8px;margin-top:10px}
+.registro .acoes button{
+  background:none;border:1px solid rgba(201,162,74,.3);color:var(--latao);
+  border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--sans);
+}
+.registro .acoes button:hover{background:rgba(201,162,74,.1)}
+.vazio{
+  text-align:center;color:var(--marfim-fraco);font-family:var(--serif);font-style:italic;
+  padding:32px 16px;font-size:15px;
+}
+
+/* ---------- ficha modal ---------- */
+.cortina{
+  position:fixed;inset:0;z-index:60;background:rgba(8,4,7,.86);
+  display:none;align-items:center;justify-content:center;padding:16px;
+  backdrop-filter:blur(4px);
+}
+.cortina.aberta{display:flex}
+.ficha-carta{
+  background:linear-gradient(168deg,#31121f,#170a11);
+  border:1px solid rgba(201,162,74,.4);border-radius:16px;
+  max-width:460px;width:100%;max-height:86vh;overflow-y:auto;padding:22px;
+  box-shadow:0 24px 60px rgba(0,0,0,.7);
+}
+.ficha-carta header{padding:0;text-align:center}
+.ficha-carta .glifo-grande{
+  font-size:52px;display:block;margin-bottom:6px;
+  filter:sepia(.9) saturate(1.6) hue-rotate(-12deg);
+}
+.ficha-carta h2{
+  font-family:var(--serif);font-weight:400;font-size:24px;margin:0;letter-spacing:.06em;
+}
+.ficha-carta .meta{font-family:var(--mono);font-size:12px;color:var(--latao);margin-top:4px}
+.ficha-carta dl{margin:18px 0 0}
+.ficha-carta dt{
+  font-family:var(--serif);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--latao);margin-top:14px;
+}
+.ficha-carta dd{margin:3px 0 0;font-size:14.5px}
+
+/* ---------- abas inferiores ---------- */
+.abas{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  display:flex;justify-content:center;gap:2px;
+  background:rgba(14,6,10,.94);
+  border-top:1px solid rgba(201,162,74,.25);
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  backdrop-filter:blur(10px);
+}
+.aba{
+  flex:1;max-width:150px;background:none;border:none;cursor:pointer;
+  color:var(--marfim-fraco);font-family:var(--serif);
+  font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.aba .ic{font-size:17px;filter:sepia(1) saturate(1.4) hue-rotate(-12deg);opacity:.7}
+.aba[aria-selected="true"]{color:var(--latao)}
+.aba[aria-selected="true"] .ic{opacity:1}
+
+.aviso{
+  text-align:center;font-size:11.5px;color:#6d6156;
+  padding:4px 20px 28px;line-height:1.5;
+}
+.oculto{display:none !important}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  .carta.aberta .carta-giro{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="emblema">✦ ✦ ✦</div>
+  <h1>Baralho Cigano</h1>
+  <p class="subtitulo">Trinta e seis cartas, uma pergunta de cada vez</p>
+  <div class="regua"></div>
+</header>
+
+<main>
+
+<!-- ======== TELA: TIRAR ======== -->
+<section id="tela-tirar" class="tela ativa" aria-label="Nova tiragem">
+
+  <div id="preparo">
+    <div class="bloco">
+      <span class="rotulo"><span class="passo">I</span> Sobre o que você quer saber</span>
+      <div class="fichas" id="temas" role="group" aria-label="Tema da consulta"></div>
+    </div>
+
+    <div class="bloco">
+      <span class="rotulo"><span class="passo">II</span> Sua pergunta <span style="color:var(--marfim-fraco);letter-spacing:0;text-transform:none;font-size:11px">(opcional)</span></span>
+      <textarea id="pergunta" rows="2" placeholder="Escreva com suas palavras. Perguntas abertas rendem leituras melhores que “sim ou não”."></textarea>
+      <p class="ajuda" id="sugestao-pergunta"></p>
+    </div>
+
+    <div class="bloco">
+      <span class="rotulo"><span class="passo">III</span> Escolha a tiragem</span>
+      <div id="tiragens" role="group" aria-label="Tipo de tiragem"></div>
+      <div id="campo-significador" class="oculto" style="margin-top:12px">
+        <span class="rotulo" style="margin-bottom:8px">Quem consulta</span>
+        <div class="fichas" id="significador" role="group" aria-label="Significador"></div>
+      </div>
+    </div>
+
+    <div class="bloco">
+      <span class="rotulo">Semente <span style="color:var(--marfim-fraco);letter-spacing:0;text-transform:none;font-size:11px">(opcional)</span></span>
+      <input type="text" id="semente-entrada" placeholder="Deixe vazio para sortear" inputmode="numeric">
+      <p class="ajuda">Cada tiragem tem uma semente. Repetir a mesma semente com a mesma tiragem devolve exatamente as mesmas cartas, na mesma ordem.</p>
+    </div>
+
+    <button class="botao" id="btn-embaralhar">Embaralhar e tirar</button>
+  </div>
+
+  <div id="resultado" class="oculto"></div>
+</section>
+
+<!-- ======== TELA: BARALHO ======== -->
+<section id="tela-baralho" class="tela" aria-label="As 36 cartas">
+  <div class="bloco">
+    <span class="rotulo">As trinta e seis cartas</span>
+    <p class="ajuda" style="margin:0 0 14px">Toque em qualquer carta para ver os significados por tema, o naipe correspondente e as palavras-chave.</p>
+    <div class="grade-baralho" id="grade-baralho"></div>
+  </div>
+</section>
+
+<!-- ======== TELA: DIÁRIO ======== -->
+<section id="tela-diario" class="tela" aria-label="Diário de leituras">
+  <div class="bloco">
+    <span class="rotulo">Diário de leituras</span>
+    <p class="ajuda" style="margin:0 0 14px">As leituras salvas ficam neste aparelho, neste navegador. Nada é enviado para lugar nenhum.</p>
+    <div id="lista-diario"></div>
+    <div class="linha-botoes" id="acoes-diario" style="margin-top:12px"></div>
+  </div>
+</section>
+
+</main>
+
+<p class="aviso">Cartomancia é entretenimento e ferramenta de reflexão — não substitui decisão própria, orientação médica, jurídica ou financeira.</p>
+
+<nav class="abas" role="tablist" aria-label="Seções">
+  <button class="aba" role="tab" aria-selected="true" data-tela="tela-tirar"><span class="ic">🔮</span>Tirar</button>
+  <button class="aba" role="tab" aria-selected="false" data-tela="tela-baralho"><span class="ic">🂠</span>Baralho</button>
+  <button class="aba" role="tab" aria-selected="false" data-tela="tela-diario"><span class="ic">📖</span>Diário</button>
+</nav>
+
+<div class="cortina" id="cortina" role="dialog" aria-modal="true" aria-label="Ficha da carta">
+  <div class="ficha-carta" id="ficha-carta"></div>
+</div>
+
+<script>
+/* ============================================================
+   BARALHO CIGANO (Lenormand) — 36 cartas
+   n=número · b=carta do baralho francês · g=glifo · k=palavras-chave
+   t=tom · e=essência · i=influência em combinação · s=sim/não
+   m=significados por tema
+   ============================================================ */
+const BARALHO = [
+{n:1,nome:"O Cavaleiro",b:"9♥",g:"🐎",t:"luz",s:"sim",
+ k:"notícia, chegada, movimento, visita",
+ e:"alguma coisa está a caminho e chega antes do que você calcula",
+ i:"e é uma notícia vinda de fora que põe isso em movimento",
+ c:"Não corra atrás: prepare-se para receber. O que precisa chegar já saiu.",
+ m:{geral:"Alguma coisa está a caminho e chega antes do que você calcula. O movimento não parte de você: vem de fora, e você vai reagir a ele em vez de provocá-lo.",
+    amor:"Alguém vai aparecer, escrever ou reaparecer. Se você está esperando uma resposta, ela vem — e vem rápido o bastante para te pegar sem o discurso pronto.",
+    trabalho:"Chega proposta, convite ou resposta que você aguardava. Não é fruto do que você fez esta semana: é coisa que já estava em trânsito e agora desembarca.",
+    familia:"Notícia entrando em casa, visita chegando, alguém retomando contato. A novidade vem de fora para dentro e mexe com o arranjo de todo mundo.",
+    dinheiro:"Dinheiro em trânsito: pagamento que destrava, resposta de proposta, valor que sai do papel. Ainda não está na conta, mas saiu do lugar.",
+    saude:"A disposição volta. Também é a carta da consulta marcada, do resultado que chega, do primeiro sinal concreto de melhora depois de um tempo parado.",
+    espiritual:"Um recado está chegando até você, e não pela porta da frente. Sonho, coincidência, frase solta de alguém — repare no que se repetir nos próximos dias."}},
+
+{n:2,nome:"O Trevo",b:"6♦",g:"🍀",t:"luz",s:"sim",
+ k:"sorte breve, oportunidade, alívio, acaso",
+ e:"existe uma brecha, e ela é pequena e curta",
+ i:"com um golpe de sorte que não vai durar",
+ c:"Aja hoje. Essa janela não espera você terminar de pensar.",
+ m:{geral:"Existe uma brecha, e ela é pequena e curta. Serve para destravar alguma coisa, não para resolver o problema inteiro — e fecha rápido se você ficar pensando.",
+    amor:"Um encontro leve, uma noite boa, um flerte que anima. É bom enquanto dura e não pede que você decida nada. Só não confunda o alívio com começo de história.",
+    trabalho:"Aparece uma chance por acaso, dessas que não estavam no plano. Vale agarrar agora: daqui a um mês essa porta provavelmente já não está aberta.",
+    familia:"O clima em casa melhora sozinho por uns dias. Aproveite a trégua, mas não se engane: a causa da briga continua exatamente onde estava.",
+    dinheiro:"Um dinheiro inesperado, uma despesa que não veio, um desconto que apareceu. Alivia o mês e não muda o ano.",
+    saude:"Um incômodo passa sozinho. Bom sinal, e nada além disso — melhora rápida não é a mesma coisa que problema resolvido.",
+    espiritual:"O acaso está jogando a seu favor agora, e não é permanente. Use enquanto a maré está alta, em vez de gastar o tempo desconfiando dela."}},
+
+{n:3,nome:"O Navio",b:"10♠",g:"⛵",t:"neutra",s:"sim",
+ k:"viagem, distância, comércio, partida",
+ e:"o caminho passa por sair de onde você está",
+ i:"e isso envolve distância, ou algo que vem de longe",
+ c:"Saia do lugar. A resposta não está no raio de onde você já procurou.",
+ m:{geral:"O caminho passa por sair de onde você está. Pode ser deslocamento físico, pode ser abrir mão de uma posição confortável — mas ficar parado não é uma das opções.",
+    amor:"Distância no meio: alguém de outra cidade, uma fase em que um dos dois precisa se afastar, ou uma relação que só funciona com espaço entre as pessoas.",
+    trabalho:"Negócio com gente de fora, viagem, mudança de praça, cliente de outro estado. O que faz o trabalho render está longe do lugar onde você senta todo dia.",
+    familia:"Parente distante, saudade, alguém que vai ou que volta. A família aqui não está toda no mesmo lugar, e isso pesa mais do que se admite em voz alta.",
+    dinheiro:"Recurso vindo de fora do seu circuito habitual. Também: gasto com deslocamento, que costuma sair maior do que o previsto na planilha.",
+    saude:"Recuperação em travessia, lenta e sem marcos claros. Pode valer procurar atendimento fora do serviço de sempre, com outro olhar sobre o mesmo quadro.",
+    espiritual:"Você está no meio da travessia, não no destino. É desconfortável por natureza — e ancorar agora, só para parar de balançar, seria o erro."}},
+
+{n:4,nome:"A Casa",b:"K♥",g:"🏠",t:"luz",s:"sim",
+ k:"lar, família, segurança, base",
+ e:"a base é firme e aguenta o que vier em cima",
+ i:"em terreno seguro, dentro do que já é seu",
+ c:"Consolide antes de expandir. A base aguenta, mas não aguenta tudo ao mesmo tempo.",
+ m:{geral:"A base é firme e aguenta o que vier em cima. O que está construído aqui não desaba por causa de um mês ruim — tem raiz e tem história.",
+    amor:"Relação com projeto de vida junto: morar, dividir, apresentar à família, planejar o que vem em cinco anos. Segurança acima de arrebatamento.",
+    trabalho:"Lugar sólido, cargo que não some, empresa que não quebra. Cresce devagar e não desaba — se você quer foguete, não é aqui.",
+    familia:"A casa e quem mora nela. O tema é o núcleo mesmo: o que se herda, o que se transmite e o teto que abriga todo mundo, com o peso que isso tem.",
+    dinheiro:"Patrimônio: imóvel, reserva, o que fica. Dinheiro parado que sustenta, e não dinheiro que circula e rende.",
+    saude:"Constituição resistente. Se há convalescença, ela é em casa, com repouso e cuidado de quem é seu — e funciona melhor assim do que fora.",
+    espiritual:"Volte para o que você já conhece antes de arriscar o que não conhece. Suas raízes não são limitação: são o que te segura quando venta."}},
+
+{n:5,nome:"A Árvore",b:"7♥",g:"🌳",t:"neutra",s:"talvez",
+ k:"saúde, raízes, crescimento lento, ancestralidade",
+ e:"isso cresce devagar e tem raiz mais funda do que aparenta",
+ i:"num processo lento, que não obedece à sua pressa",
+ c:"Dê tempo ao tempo e use o tempo. Cuide da raiz, não da folha.",
+ m:{geral:"Isso cresce devagar e tem raiz mais funda do que aparenta. Não se resolve com pressa; em compensação, o que se resolve aqui fica resolvido.",
+    amor:"Vínculo com história, que amadurece no seu próprio tempo. Apertar o passo estraga. Se parece lento, é porque é — e é assim que dura.",
+    trabalho:"Carreira que se constrói ano a ano. Os resultados existem, mas aparecem tarde, e quem olha de fora acha que você não saiu do lugar.",
+    familia:"O que veio de antes de você: sobrenome, padrão que se repete há gerações, jeito de fazer as coisas que ninguém escolheu e todo mundo obedece.",
+    dinheiro:"Crescimento gradual, de juros compostos e não de aposta. Investimento longo, em que mexer todo mês é justamente o que atrapalha.",
+    saude:"É a carta da saúde propriamente dita. Pede atenção ao corpo, exame em dia e tratamento com paciência. Se algo vem incomodando, marque a consulta.",
+    espiritual:"Você está ligado a algo mais antigo do que essa questão. Cure a raiz e o galho se ajeita sozinho — o contrário nunca funcionou."}},
+
+{n:6,nome:"As Nuvens",b:"K♣",g:"☁️",t:"sombra",s:"nao",
+ k:"confusão, dúvida, instabilidade, o que está oculto",
+ e:"você está decidindo no escuro e sabe disso",
+ i:"em meio a informação incompleta e gente pouco clara",
+ c:"Não decida agora. Junte informação e espere a névoa levantar.",
+ m:{geral:"Você está decidindo no escuro e sabe disso. Falta informação, e ela não está faltando por acaso: ou alguém não está contando tudo, ou você ainda não quis olhar direito.",
+    amor:"Você está tentando ler alguém que nem ele mesmo se entende. Os sinais se contradizem porque a pessoa se contradiz. Cobrar definição agora só produz resposta falsa.",
+    trabalho:"Regras que mudam, chefia que muda de ideia, informação que chega pela metade. Registre tudo por escrito: aqui a memória de ninguém vai coincidir depois.",
+    familia:"Tem assunto pairando que ninguém nomeia. Todo mundo sente o clima e todo mundo finge que não. Enquanto não for dito, continua contaminando o resto.",
+    dinheiro:"Números que não batem, proposta com letra miúda, valor que muda dependendo de quem explica. Não assine nada esta semana.",
+    saude:"Quadro indefinido, sintoma que vai e volta, diagnóstico que não fecha. É caso de segunda opinião, não de esperar passar.",
+    espiritual:"Sua intuição está encoberta, e por isso não confie nela agora. Não é hora de decidir. É hora de esperar a poeira baixar, mesmo que a espera irrite."}},
+
+{n:7,nome:"A Serpente",b:"Q♣",g:"🐍",t:"sombra",s:"nao",
+ k:"desvio, astúcia, traição, sabedoria dura",
+ e:"nada aqui vai em linha reta, e tem alguém agindo por interesse próprio",
+ i:"com um desvio ou um interesse escondido no meio do caminho",
+ c:"Confira o que te disseram. Não repita nada sem verificar a fonte.",
+ m:{geral:"Nada aqui vai em linha reta. Tem uma volta a dar, e tem alguém agindo por interesse próprio — o que não é necessariamente contra você, mas também não é por você.",
+    amor:"Ciúme, terceira pessoa, ou alguém seduzindo com segunda intenção. Também pode ser a paixão intensa que você sabe que é má ideia e vai viver mesmo assim.",
+    trabalho:"Concorrência desleal, colega que sorri e joga contra, negociação com armadilha na cláusula que ninguém leu. Confira o que te disseram antes de repetir.",
+    familia:"Manipulação afetiva: chantagem velada, culpa distribuída, alguém plantando intriga entre parentes e depois se apresentando como quem apazigua.",
+    dinheiro:"Proposta enganosa, contrato torto, dívida que cresce por dentro enquanto a parcela parece pequena. Leia duas vezes e peça para outra pessoa ler também.",
+    saude:"Problema que se enrola e se disfarça: intestino, circulação, algo crônico que aprendeu a não doer o suficiente para você agir.",
+    espiritual:"A serpente também é sabedoria — a que se aprende do jeito difícil. Essa lição vai custar, e vai ficar."}},
+
+{n:8,nome:"O Caixão",b:"9♦",g:"⚰️",t:"sombra",s:"nao",
+ k:"fim, luto, transformação, encerramento",
+ e:"um ciclo terminou e insistir nele só prolonga o desgaste",
+ i:"levando aquilo a um encerramento sem volta",
+ c:"Encerre de vez. Enterrar bem é o trabalho desta fase, e é trabalho.",
+ m:{geral:"Um ciclo terminou. Insistir nele só prolonga o desgaste, e a parte mais cansativa disso não é o fim: é o tempo que você vai levar para admitir que acabou.",
+    amor:"Fim, esfriamento, luto afetivo. Às vezes não é a pessoa que morre, é a expectativa que você tinha sobre ela — e essa morte dói igual.",
+    trabalho:"Projeto encerrado, desligamento, ciclo que acabou. Fechar bem importa mais do que tentar reabrir: a porta de saída aqui vale mais que a de volta.",
+    familia:"Perda, luto, ou transformação profunda no arranjo da família. Alguma coisa não volta a ser como era, e reconstruir o antigo é desperdício de energia.",
+    dinheiro:"Prejuízo, fonte de renda que seca, dívida que precisa ser encarada de frente. Adiar aqui só multiplica o valor.",
+    saude:"Cansaço profundo, de quem passou do limite há tempo. O corpo está pedindo parada real, não fim de semana. Se estiver arrastando algo, procure ajuda.",
+    espiritual:"Deixe morrer o que já morreu. Nada nasce enquanto você estiver velando um corpo que não responde mais."}},
+
+{n:9,nome:"O Buquê",b:"Q♠",g:"💐",t:"luz",s:"sim",
+ k:"presente, convite, beleza, gentileza",
+ e:"alguma coisa bonita acontece, e o melhor dela é que é sincera",
+ i:"de um jeito bonito e sem cobrança embutida",
+ c:"Aceite o que estão te oferecendo, e retribua. Reconhecimento também se cultiva.",
+ m:{geral:"Alguma coisa bonita acontece, e o melhor dela é que é sincera. Não tem cobrança embutida, não é armadilha, não vem com fatura depois.",
+    amor:"Cortejo, presente, declaração, um encontro que encanta de verdade. Alguém está cuidando de você com capricho — deixe cuidar.",
+    trabalho:"Elogio, reconhecimento, convite honroso. Também: trabalho em que a forma de apresentar vale tanto quanto o conteúdo apresentado.",
+    familia:"Celebração, reencontro afetuoso, um gesto que desarma. O clima em casa fica leve, e vale guardar isso na memória para os meses difíceis.",
+    dinheiro:"Bônus, gratificação, presente. Dinheiro que chega como reconhecimento e não como troca — o que muda o gosto de receber.",
+    saude:"Bem-estar voltando, ânimo melhor, vontade de se arrumar de novo. Sinal de que a fase pesada está passando.",
+    espiritual:"Gratidão, e não da versão obrigatória. Você está recebendo mais do que percebe; pare o tempo suficiente para reparar."}},
+
+{n:10,nome:"A Foice",b:"J♦",g:"🗡️",t:"sombra",s:"nao",
+ k:"corte, decisão súbita, ruptura, colheita",
+ e:"o corte vem rápido e sem meio-termo",
+ i:"e isso é cortado de uma vez, pela raiz",
+ c:"Corte. Doer rápido é melhor do que doer por mais seis meses.",
+ m:{geral:"O corte vem rápido e sem meio-termo. O que se separa agora não volta a colar — o que assusta, mas também encerra a dúvida que estava consumindo você.",
+    amor:"Rompimento repentino, ou o fim súbito de uma dúvida que se arrastava há meses. De um jeito ou de outro, a indefinição acaba.",
+    trabalho:"Demissão, corte de custos, contrato encerrado sem aviso. Também pode ser você tomando a decisão firme que vinha adiando desde o começo do ano.",
+    familia:"Uma verdade dita sem filtro rompe alguma coisa. Pode ser necessário; só não conte com a possibilidade de desdizer depois.",
+    dinheiro:"Corte de renda ou corte de gasto — nos dois casos, brusco. O orçamento muda de tamanho de uma vez, e não aos poucos.",
+    saude:"Procedimento, intervenção, dor aguda que aparece do nada. Não é quadro para observar de longe: se dói assim, procure atendimento.",
+    espiritual:"Corte o que drena você, e corte inteiro. Colheita e amputação usam a mesma lâmina — a diferença está no que você decide manter."}},
+
+{n:11,nome:"O Chicote",b:"J♣",g:"🧹",t:"sombra",s:"nao",
+ k:"conflito, repetição, esforço, discussão",
+ e:"o mesmo problema voltou porque a causa nunca foi tratada",
+ i:"com atrito e desgaste que já se repetiram antes",
+ c:"Pare de repetir a mesma resposta. O ciclo só quebra quando você muda a sua parte.",
+ m:{geral:"O mesmo problema voltou porque a causa nunca foi tratada. Você já conhece o roteiro inteiro dessa discussão, inclusive a parte em que ninguém muda de ideia.",
+    amor:"A mesma briga, na mesma toada, com as mesmas falas. Também aparece como atração física intensa que sobrevive ao desgaste e ainda o alimenta.",
+    trabalho:"Ambiente de cobrança, retrabalho constante, atrito com alguém que não vai mudar. O esforço aqui é braçal e mal reconhecido.",
+    familia:"A discussão de sempre. Todo mundo sabe o texto, ninguém sai do personagem, e o assunto reaparece na próxima reunião de família.",
+    dinheiro:"Gasto que se repete todo mês, dívida rolada, a mesma conversa sobre dinheiro com a mesma pessoa e o mesmo resultado.",
+    saude:"Tensão muscular, dor que volta ao mesmo ponto, esforço físico além do que o corpo comporta. O sintoma insiste porque a causa continua.",
+    espiritual:"Você está repetindo a lição por não tê-la aprendido. A saída não é aguentar melhor: é mudar a sua fala dentro da cena."}},
+
+{n:12,nome:"Os Pássaros",b:"7♦",g:"🐦",t:"neutra",s:"talvez",
+ k:"conversa, ansiedade, fofoca, dois",
+ e:"tem muita conversa em volta e algum nervosismo junto",
+ i:"cercado de conversa alheia e de nervosismo",
+ c:"Fale menos e escute mais. Diminua o ruído antes de procurar o sinal.",
+ m:{geral:"Tem muita conversa em volta e algum nervosismo junto. Parte do que você está sentindo é ansiedade legítima; a outra parte é ruído de gente opinando.",
+    amor:"Conversa necessária, discussão da relação, ou terceiros comentando o que não é da conta deles. Falem diretamente, sem intermediário e sem plateia.",
+    trabalho:"Reunião, negociação, entrevista — e o falatório de corredor que corre em paralelo. Cuidado com o que você comenta achando que é conversa fiada.",
+    familia:"Todo mundo opinando ao mesmo tempo. O assunto vira comentário antes de virar decisão, e ninguém percebe que ninguém resolveu nada.",
+    dinheiro:"Muitos valores pequenos e frequentes, conversas sobre dinheiro que não concluem, acordo verbal que precisava estar no papel.",
+    saude:"Ansiedade, insônia, respiração curta, garganta. O corpo reagindo ao excesso de estímulo — e o excesso de estímulo é escolha, em boa parte.",
+    espiritual:"Baixe o volume externo. A resposta que você procura tem voz mais baixa do que qualquer uma dessas."}},
+
+{n:13,nome:"A Criança",b:"J♠",g:"🧒",t:"luz",s:"sim",
+ k:"começo, inocência, pequeno, filho",
+ e:"alguma coisa começa, e é pequena, promissora e frágil",
+ i:"num começo pequeno, que ainda precisa de proteção",
+ c:"Comece pequeno e proteja o começo. Ainda não é hora de mostrar para todo mundo.",
+ m:{geral:"Alguma coisa começa, e é pequena. Promissora e frágil na mesma medida — o cuidado que você tiver nas primeiras semanas define se vira algo.",
+    amor:"Começo de história, paquera, leveza que você já não lembrava. Ou o assunto filhos entrando na conversa de um jeito que muda o resto.",
+    trabalho:"Projeto novo, função nova, e você como o iniciante ali. Perguntar sai mais barato agora do que daqui a três meses.",
+    familia:"As crianças da casa, gravidez, o mais novo da família. Também pode ser a imaturidade de um adulto que ninguém quer nomear.",
+    dinheiro:"Valor pequeno, começo de reserva, primeiro rendimento. É semente. Tratar como colheita é o jeito mais rápido de perder.",
+    saude:"Quadro leve e recente. Trate agora, enquanto é pequeno e barato de resolver.",
+    espiritual:"Reaprenda a olhar sem defesa. A inocência aqui é ferramenta, não fraqueza — desde que você saiba que está usando."}},
+
+{n:14,nome:"A Raposa",b:"9♣",g:"🦊",t:"sombra",s:"nao",
+ k:"astúcia, emprego, desconfiança, sobrevivência",
+ e:"tem esperteza em jogo e nem tudo é o que parece",
+ i:"com cálculo e alguma segunda intenção por trás",
+ c:"Desconfie com elegância. Confirme, documente, e não avise que está conferindo.",
+ m:{geral:"Tem esperteza em jogo, e nem tudo é o que parece. Não é paranoia: é a leitura correta de que alguém está calculando mais do que dizendo.",
+    amor:"Alguém não está sendo inteiro com você. Também acontece de o autoengano ser seu, porque a versão conveniente é mais confortável que a verdadeira.",
+    trabalho:"É a carta do emprego. Também aparece como colega dissimulado, ou entrevista em que todo mundo vende uma imagem — inclusive você.",
+    familia:"Um parente agindo por interesse. Cuidado com o favor que parece gentileza e vira cobrança na próxima vez que você precisar de algo.",
+    dinheiro:"Golpe, taxa escondida, promessa boa demais para ser verdade. Se o retorno é alto demais, o risco está em algum lugar que não te mostraram.",
+    saude:"Sintoma que engana, autodiagnóstico feito na internet, tratamento por conta própria. Procure quem tem formação para olhar isso.",
+    espiritual:"Use a esperteza para se proteger, nunca para enganar. A raposa sobrevive porque observa antes, não porque morde melhor."}},
+
+{n:15,nome:"O Urso",b:"10♣",g:"🐻",t:"neutra",s:"talvez",
+ k:"poder, força, proteção, autoridade",
+ e:"tem uma figura forte no comando, e ela pesa na sala",
+ i:"sob a influência de alguém com poder de verdade",
+ c:"Use o seu peso. Aqui você tem mais força do que está exercendo.",
+ m:{geral:"Tem uma figura forte no comando, e ela pesa na sala. Pode ser outra pessoa, pode ser a sua própria capacidade de impor limite quando você decide usá-la.",
+    amor:"Parceiro protetor — ou controlador, e a linha entre os dois é mais fina do que parece de dentro. Também: figura materna influenciando a relação.",
+    trabalho:"O chefe, o diretor, quem decide de fato. O poder está concentrado numa pessoa só, e conhecer o humor dela vale mais que o organograma.",
+    familia:"A mãe, ou quem manda na casa. Proteção que às vezes sufoca, e que ninguém questiona porque também sustenta.",
+    dinheiro:"Quantia grande, capital consolidado, ou quem administra o seu dinheiro. Vale saber exatamente quanto dessa força é sua.",
+    saude:"Constituição robusta. Atenção a peso, apetite e força usada de forma desequilibrada — costas e articulações reclamam primeiro.",
+    espiritual:"Sua força é maior do que você admite. A pergunta não é se você tem: é para que você está usando."}},
+
+{n:16,nome:"As Estrelas",b:"6♥",g:"✨",t:"luz",s:"sim",
+ k:"clareza, inspiração, rumo, sucesso",
+ e:"o caminho está claro e confere com o que você quer",
+ i:"com clareza suficiente para enxergar o rumo",
+ c:"Siga o que ilumina, mesmo distante. A direção está certa; falta caminhar.",
+ m:{geral:"O caminho está claro e é bom. Uma das melhores cartas do baralho: você enxerga o rumo, e o rumo confere com o que você quer de verdade.",
+    amor:"Relação com verdade e brilho, dessas que melhoram você. Ou a clareza súbita sobre o que você quer — e sobre o que já não aceita mais.",
+    trabalho:"Reconhecimento, visibilidade, projeto que dá certo e é visto. Também: tecnologia, redes, ciência, trabalho que depende de método.",
+    familia:"Entendimento e harmonia. A família funcionando como referência, e não como peso — vale reparar nisso enquanto está assim.",
+    dinheiro:"Prosperidade construída com método, várias fontes pequenas somando bem. Nada de sorte grande: é organização rendendo.",
+    saude:"Prognóstico bom e orientação certa. Confie no tratamento e em quem está conduzindo; a melhora vem no tempo previsto.",
+    espiritual:"Você está sendo guiado, e a direção é essa mesmo. Siga o que ilumina, ainda que esteja longe e você não veja o caminho inteiro."}},
+
+{n:17,nome:"A Cegonha",b:"Q♥",g:"🕊️",t:"luz",s:"sim",
+ k:"mudança, transição, renovação, gestação",
+ e:"a situação vai mudar de forma, e para melhor",
+ i:"trazendo uma mudança de formato para aquilo",
+ c:"Aceite a mudança em vez de negociar com ela. O formato antigo já não serve.",
+ m:{geral:"A situação vai mudar de forma, e para melhor. Não é ruptura: é o que já existe se reorganizando em algo mais adequado ao seu tamanho atual.",
+    amor:"A relação muda de patamar. Reconciliação, novo capítulo, morar junto, ou gravidez. O formato antigo já não cabia em vocês.",
+    trabalho:"Mudança de função, promoção, transferência. O trabalho continua, o desenho dele muda — e a mudança é favorável.",
+    familia:"Mudança de casa, alguém chegando, novo arranjo. Nascimento. A família muda de configuração e todo mundo se ajusta ao novo desenho.",
+    dinheiro:"Melhora gradual da renda, fonte que se renova. Não é salto: é uma curva que finalmente virou para cima.",
+    saude:"Recuperação progressiva, corpo se reorganizando. Também: gravidez, ciclos, hormônios em transição.",
+    espiritual:"Renovação. Deixe a forma antiga ir embora sem drama — aqui a mudança está do seu lado, não contra você."}},
+
+{n:18,nome:"O Cão",b:"10♥",g:"🐕",t:"luz",s:"sim",
+ k:"amizade, lealdade, confiança, apoio",
+ e:"tem alguém do seu lado de verdade, sem cobrar nada em troca",
+ i:"com apoio leal de quem não pede nada em troca",
+ c:"Chame quem é seu. Você não precisa carregar isso sozinho e não deveria.",
+ m:{geral:"Tem alguém do seu lado de verdade, sem cobrar nada em troca. Vale reconhecer quem é, porque essa é a carta mais fácil de desperdiçar por distração.",
+    amor:"Companheirismo e lealdade: amizade que virou amor, ou amor que virou parceria sólida. Amor sem sobressalto — o que só decepciona quem confunde paz com tédio.",
+    trabalho:"Colega de confiança, sócio leal, cliente fiel. A sua rede aqui é o ativo, e ela se mantém com presença, não com favor.",
+    familia:"O parente com quem se pode contar de verdade. Vínculo que não cobra, não mede e não lembra do que já fez por você.",
+    dinheiro:"Ajuda financeira de alguém próximo, ou dinheiro emprestado na base da confiança. Honre o combinado mesmo sem contrato — principalmente sem contrato.",
+    saude:"Alguém acompanhando o tratamento com você. Aceite a companhia: recuperação com apoio é outra medida.",
+    espiritual:"Fidelidade, inclusive a si mesmo. Confie em quem prova com atos repetidos, não em quem se explica bem."}},
+
+{n:19,nome:"A Torre",b:"6♠",g:"🗼",t:"neutra",s:"nao",
+ k:"instituição, isolamento, autoridade, longo prazo",
+ e:"tem uma estrutura maior e mais lenta que você envolvida nisso",
+ i:"dentro de uma estrutura formal que não obedece ao seu ritmo",
+ c:"Recolha-se e cumpra o protocolo. Aqui a paciência formal rende mais que a iniciativa.",
+ m:{geral:"Tem uma estrutura maior e mais lenta que você envolvida nisso. Regra, hierarquia, protocolo — e o afastamento necessário para conseguir enxergar por cima.",
+    amor:"Distanciamento, ou relação formal e fria. Alguém se protegendo atrás de muros que levou anos construindo e não derruba num fim de semana.",
+    trabalho:"Órgão público, empresa grande, processo, protocolo. O ritmo não é seu, é da instituição, e brigar com isso gasta energia sem mover nada.",
+    familia:"Frieza entre parentes, ou o peso das regras e tradições da casa. O que se faz porque sempre se fez, e ninguém mais lembra por quê.",
+    dinheiro:"Banco, imposto, processo, dinheiro preso em estrutura formal. Vai destravar, mas no prazo do sistema e não no seu.",
+    saude:"Hospital, internação, tratamento longo e acompanhado de perto. Cuidado que exige estrutura, não improviso.",
+    espiritual:"Recolha-se. Você precisa de altura e distância para enxergar o desenho inteiro — e isso custa companhia por um tempo."}},
+
+{n:20,nome:"O Jardim",b:"8♠",g:"⛲",t:"neutra",s:"sim",
+ k:"público, encontros, exposição, rede",
+ e:"isso acontece à vista de todos, no meio das pessoas",
+ i:"e passa a acontecer em público, sob o olhar dos outros",
+ c:"Apareça. Isso se resolve entre gente, não sozinho no quarto.",
+ m:{geral:"Isso acontece à vista de todos. Ganha em oportunidade de encontro, perde em privacidade — e você não controla o que os outros vão comentar.",
+    amor:"Conhecer alguém em evento ou aplicativo, relação exposta e comentada. A opinião alheia está entrando na sua relação mais do que devia.",
+    trabalho:"Networking, evento, atendimento ao público, sua imagem circulando. Aqui quem aparece é lembrado, e quem não aparece não existe.",
+    familia:"Reunião grande, festa, a família diante dos outros. E a preocupação com o que os de fora vão achar, que costuma comandar mais do que se admite.",
+    dinheiro:"Renda que vem do público: vendas, clientes, audiência. Quanto mais gente conhece, mais entra — a conta é simples, o trabalho não.",
+    saude:"Cuidado coletivo, grupo de apoio, ambiente compartilhado. Também: contágio, e a saúde que depende do que circula em volta.",
+    espiritual:"Você não caminha sozinho e não precisa. Procure quem está no mesmo caminho — a solidão aqui é escolha, não destino."}},
+
+{n:21,nome:"A Montanha",b:"8♣",g:"⛰️",t:"sombra",s:"nao",
+ k:"obstáculo, bloqueio, atraso, adversário",
+ e:"tem um bloqueio concreto no caminho e ele não sai do lugar sozinho",
+ i:"esbarrando num obstáculo que não cede à insistência",
+ c:"Contorne em vez de escalar. Não é hora de arrombar essa porta.",
+ m:{geral:"Tem um bloqueio concreto no caminho, e ele não sai do lugar sozinho nem por insistência. É para contornar, não para arrombar.",
+    amor:"Silêncio, distância, obstáculo externo, ou alguém irredutível. Empurrar com mais força só confirma para a outra pessoa que ela deve resistir.",
+    trabalho:"Processo travado, projeto parado, alguém barrando o seu avanço. O caminho passa por outra porta, não por essa.",
+    familia:"Mágoa antiga que ninguém dissolve, parente que não cede. Está congelado há tanto tempo que já virou parte da paisagem.",
+    dinheiro:"Crédito negado, pagamento travado, meta que não sai do lugar por mais que você aperte. Reveja o caminho, não o esforço.",
+    saude:"Quadro persistente que limita movimento: coluna, ossos, articulações. Melhora existe, mas em escala de meses.",
+    espiritual:"A montanha é para ser contornada. Aceitar o tempo dela não é desistir — é parar de gastar força na parede errada."}},
+
+{n:22,nome:"Os Caminhos",b:"Q♦",g:"🛤️",t:"neutra",s:"talvez",
+ k:"escolha, decisão, bifurcação, alternativa",
+ e:"existem opções reais e nenhuma delas é obviamente melhor",
+ i:"colocando você diante de uma escolha que não dá para adiar",
+ c:"Escolha. Não escolher é a única alternativa que garante perda.",
+ m:{geral:"Existem opções reais, e nenhuma delas é obviamente melhor. Não decidir também é decidir, e é a única alternativa que garante perda.",
+    amor:"Escolher entre duas pessoas, ou entre ficar e sair. A indecisão prolongada já está machucando mais do que qualquer uma das escolhas machucaria.",
+    trabalho:"Duas propostas, dois rumos. Nenhuma é perfeita, ambas são viáveis, e você vai passar meses imaginando a que não escolheu.",
+    familia:"Uma decisão que divide a família em dois lados. Você vai desagradar alguém, e a tentativa de agradar todos desagrada todos.",
+    dinheiro:"Duas alternativas de gasto ou investimento. Compare com número na frente, não com sensação.",
+    saude:"Dois tratamentos possíveis, ou dois profissionais com opiniões diferentes. Vale ouvir a segunda opinião até o fim antes de escolher.",
+    espiritual:"O livre-arbítrio está exposto na mesa. Escolha pelo que você quer construir, e não pelo que você quer evitar."}},
+
+{n:23,nome:"Os Ratos",b:"7♣",g:"🐀",t:"sombra",s:"nao",
+ k:"perda, desgaste, roubo, estresse",
+ e:"alguma coisa está se perdendo aos poucos, sem barulho",
+ i:"com um desgaste silencioso corroendo aquilo por dentro",
+ c:"Ache o vazamento e feche. O problema não é o valor: é a frequência.",
+ m:{geral:"Alguma coisa está se perdendo aos poucos, sem barulho. Nada explode aqui — vai sumindo de pouquinho, e quando se percebe já foi muito.",
+    amor:"Desgaste silencioso, afeto que mingua, desconfiança roendo por baixo. Ou alguém drenando você sem que nenhum episódio isolado justifique reclamar.",
+    trabalho:"Motivação escoando, horas desperdiçadas, alguém se apoiando no seu trabalho. Você chega em casa cansado sem conseguir dizer do quê.",
+    familia:"O clima azeda devagar. Pequenas mágoas acumuladas viram distância, e ninguém consegue apontar a briga que teria causado.",
+    dinheiro:"Vazamento: taxas, assinaturas, pequenos gastos que somam mais que a parcela grande que te preocupa. Também: furto e extravio.",
+    saude:"Cansaço crônico, estresse, imunidade caindo. O corpo sendo consumido aos poucos por uma rotina que você chama de normal.",
+    espiritual:"Ache o vazamento. Preocupação sem ação é o rato mais voraz de todos, e come exatamente a energia que resolveria o problema."}},
+
+{n:24,nome:"O Coração",b:"J♥",g:"❤️",t:"luz",s:"sim",
+ k:"amor, afeto, sinceridade, perdão",
+ e:"o que está em jogo aqui é sentimento, e ele é verdadeiro",
+ i:"com sentimento sincero no meio, mudando o peso das coisas",
+ c:"Diga o que você sente, com todas as letras. O cálculo aqui atrapalha.",
+ m:{geral:"O que está em jogo aqui é sentimento, e ele é verdadeiro. Tentar resolver isso no cálculo vai produzir uma resposta certa e insatisfatória.",
+    amor:"É a carta do amor. Reciprocidade, paixão, reconciliação, declaração — o sentimento existe dos dois lados e está pedindo para ser dito.",
+    trabalho:"Trabalho que você ama, ou colegas que viraram afeto. Aqui você faz por gostar, e isso rende mais do que qualquer meta.",
+    familia:"Perdão, reaproximação, o amor familiar que sobrevive apesar do histórico. Alguém está esperando você dar o primeiro passo.",
+    dinheiro:"Dinheiro ligado a afeto: presente, ajuda a quem você ama, gasto que não se justifica na planilha e se justifica no resto.",
+    saude:"Coração e circulação, e o quanto o que você sente está aparecendo no corpo. Cuidar do afeto aqui é cuidado clínico também.",
+    espiritual:"Abra o peito. A resposta vem pelo que você sente, e você já sabe qual é — só está esperando permissão para admitir."}},
+
+{n:25,nome:"O Anel",b:"A♣",g:"💍",t:"luz",s:"sim",
+ k:"compromisso, contrato, aliança, ciclo",
+ e:"um acordo se firma e passa a valer para os dois lados",
+ i:"selando aquilo num compromisso que passa a obrigar",
+ c:"Firme o acordo por escrito. O que não estiver no papel não existe depois.",
+ m:{geral:"Um acordo se firma e passa a valer para os dois lados. Dá segurança e tira liberdade na mesma proporção — e as duas coisas são reais.",
+    amor:"Namoro firmado, noivado, casamento. Ou um ciclo afetivo que se repete: mesmo tipo de pessoa, mesmo enredo, outro nome.",
+    trabalho:"Contrato assinado, sociedade, acordo fechado. Leia as cláusulas de saída com o mesmo cuidado com que leu as de entrada.",
+    familia:"Aliança entre parentes, promessa feita e cobrada depois, compromisso que ninguém assinou mas todo mundo respeita.",
+    dinheiro:"Financiamento, parcelamento, contrato longo. Some o total antes de olhar a parcela — é o total que você vai pagar.",
+    saude:"Ciclo que se repete no corpo, tratamento contínuo. Constância aqui vale mais que intensidade.",
+    espiritual:"O que você promete a si mesmo tem peso. Não firme o que você já sabe que não vai honrar."}},
+
+{n:26,nome:"Os Livros",b:"10♦",g:"📚",t:"neutra",s:"talvez",
+ k:"segredo, estudo, conhecimento, o não revelado",
+ e:"tem informação que ainda não chegou até você",
+ i:"e parte da informação sobre isso continua escondida",
+ c:"Estude o assunto antes de opinar. Falta informação que está disponível.",
+ m:{geral:"Tem informação que ainda não chegou até você. Ou é segredo de alguém, ou é conhecimento disponível que você ainda não foi buscar.",
+    amor:"Alguém está guardando alguma coisa: sentimento não declarado, ou passado não contado. Não necessariamente grave — mas está lá.",
+    trabalho:"Estudo, formação, especialização. Também: informação confidencial circulando, e a vantagem de quem soube antes.",
+    familia:"Segredo de família. Algo que os mais velhos sabem, não contam, e que explica muita coisa que ninguém entende.",
+    dinheiro:"Valor que não aparece, conta que ninguém menciona, ganho discreto de alguém. Peça os números completos.",
+    saude:"Causa ainda não identificada. Investigue mais fundo em vez de tratar só o sintoma que aparece.",
+    espiritual:"O conhecimento existe e está ao seu alcance. Ele não vem até você — você é que vai até ele."}},
+
+{n:27,nome:"A Carta",b:"7♠",g:"✉️",t:"neutra",s:"talvez",
+ k:"documento, mensagem, escrito, comunicação",
+ e:"a resposta vem por escrito, e o que está registrado vale mais",
+ i:"e chega por um documento ou mensagem, não por conversa",
+ c:"Escreva. Botar no papel é o que organiza o que está solto na cabeça.",
+ m:{geral:"A resposta vem por escrito. Documento, mensagem, notificação — e o que estiver registrado vale mais do que qualquer conversa que já aconteceu.",
+    amor:"Uma mensagem que chega, ou uma que você precisa mandar. O que não foi dito de viva voz, escreva — aqui o texto funciona melhor.",
+    trabalho:"E-mail, proposta, parecer, ofício. A comunicação formal é o que decide o assunto, e o tom do texto importa tanto quanto o conteúdo.",
+    familia:"Notícia por escrito, documento de família, papelada parada esperando alguém resolver. Provavelmente você.",
+    dinheiro:"Boleto, extrato, contrato, notificação. Confira os números impressos: a divergência está no papel, não na sua memória.",
+    saude:"Exame, laudo, receita. O resultado vem escrito, e vale ler com calma antes de interpretar sozinho.",
+    espiritual:"Escreva. Botar no papel é o que vai organizar o que está solto na sua cabeça há semanas."}},
+
+{n:28,nome:"O Homem",b:"A♥",g:"♂",t:"neutra",s:"talvez",
+ k:"o consulente, homem importante, ação",
+ e:"a figura masculina central dessa história ocupa o centro da cena",
+ i:"por meio de um homem que pesa nessa história",
+ c:"Aja. A situação está esperando você se mover, não amadurecer mais um pouco.",
+ m:{geral:"A figura masculina central dessa história. Se a pergunta é sua e você é homem, é você: quem age, decide e assume o que vier.",
+    amor:"O parceiro, o pretendente, o homem em quem você pensou ao formular a pergunta. Ele está mais presente no assunto do que você admitiu.",
+    trabalho:"Um homem decisivo no ambiente: chefe, sócio, cliente, concorrente. O rumo do assunto passa por ele.",
+    familia:"Pai, filho, irmão, marido. A figura masculina da casa, com o peso que ela tem ali — presente ou ausente.",
+    dinheiro:"Quem controla ou fornece o recurso. Vale saber exatamente quanto da sua situação depende dessa pessoa.",
+    saude:"O corpo e a disposição dele. Saúde masculina, e a tendência de adiar consulta até virar urgência.",
+    espiritual:"Seu lado ativo: o que faz, decide e vai atrás. Se está faltando, é essa parte que precisa ser chamada."}},
+
+{n:29,nome:"A Mulher",b:"A♠",g:"♀",t:"neutra",s:"talvez",
+ k:"a consulente, mulher importante, intuição",
+ e:"a figura feminina central dessa história ocupa o centro da cena",
+ i:"por meio de uma mulher que pesa nessa história",
+ c:"Confie no que você percebeu. A leitura que você fez está certa.",
+ m:{geral:"A figura feminina central dessa história. Se a pergunta é sua e você é mulher, é você: quem sente, percebe e sustenta o que os outros não veem.",
+    amor:"A parceira, a pretendente, a mulher em quem você pensou ao formular a pergunta. Ela pesa nesse assunto mais do que aparece.",
+    trabalho:"Uma mulher decisiva no ambiente: chefe, sócia, cliente, concorrente. Vale entender o que ela quer antes de propor qualquer coisa.",
+    familia:"Mãe, filha, irmã, esposa. A figura feminina da casa, e a carga que costuma recair sobre ela sem ninguém combinar.",
+    dinheiro:"Quem administra o recurso e organiza as contas. Trabalho invisível que sustenta o resto.",
+    saude:"O corpo e a sensibilidade dele. Saúde feminina, ciclos, e sintomas que costumam ser minimizados por terceiros.",
+    espiritual:"Seu lado receptivo: o que intui, escuta e acolhe. A percepção que você teve e desqualificou estava certa."}},
+
+{n:30,nome:"Os Lírios",b:"K♠",g:"⚜️",t:"luz",s:"sim",
+ k:"maturidade, paz, ética, sexualidade",
+ e:"tem maturidade e serenidade no fundo disso",
+ i:"com a calma de quem já não tem nada a provar",
+ c:"Tenha paciência e mantenha a linha. Aqui a integridade rende mais que a velocidade.",
+ m:{geral:"Tem maturidade e serenidade no fundo disso. O tempo aqui é aliado, e a pressa é o único jeito de estragar algo que estava indo bem.",
+    amor:"Amor maduro e sereno, ou relação com alguém mais velho. Também aparece como intimidade e sexualidade — a parte adulta e tranquila dela.",
+    trabalho:"Experiência reconhecida, cargo sênior, aposentadoria no horizonte, trabalho que exige conduta impecável. Sua reputação é o ativo.",
+    familia:"Os mais velhos da família e o que eles ainda têm a passar adiante. Paz doméstica construída com anos de concessão mútua.",
+    dinheiro:"Segurança de longo prazo: previdência, patrimônio maduro, o que foi feito para durar mais que você.",
+    saude:"Recuperação lenta e serena, ou saúde de quem já viveu bastante. Repouso não é luxo aqui, é tratamento.",
+    espiritual:"Paz que só vem com maturidade. Nada aqui precisa de pressa, e o que precisa de pressa provavelmente não é seu."}},
+
+{n:31,nome:"O Sol",b:"A♦",g:"☀️",t:"luz",s:"sim",
+ k:"sucesso, energia, vitória, clareza",
+ e:"é vitória com energia para sustentar o que vier",
+ i:"e isso termina em sucesso, com folga",
+ c:"Avance com confiança. Não fique procurando defeito no que está dando certo.",
+ m:{geral:"É a melhor carta do baralho. Vitória, clareza e energia para sustentar o que você conquistar — não é sorte passageira, é resultado.",
+    amor:"Amor pleno e correspondido, fase luminosa. Aproveite sem ficar procurando o defeito escondido: às vezes está bom porque está bom.",
+    trabalho:"Êxito, promoção, projeto que brilha e é atribuído a você. Reconhecimento com nome e sobrenome.",
+    familia:"Alegria em casa, orgulho, motivo real de comemoração. Marque a data — esses períodos são mais curtos do que parecem enquanto duram.",
+    dinheiro:"Ganho expressivo, retorno acima do esperado. Momento de guardar parte, e não de subir o padrão inteiro.",
+    saude:"Vitalidade plena, energia de volta, cura. O corpo respondendo bem ao que está sendo feito.",
+    espiritual:"Você está no lugar certo, fazendo a coisa certa. Siga em frente e pare de pedir confirmação."}},
+
+{n:32,nome:"A Lua",b:"8♥",g:"🌙",t:"luz",s:"sim",
+ k:"reconhecimento, emoção, intuição, prestígio",
+ e:"tem reconhecimento e emoção forte misturados",
+ i:"com forte carga emocional e alguma visibilidade",
+ c:"Confie no que você sente antes do que te explicam. A leitura emocional está certa.",
+ m:{geral:"Reconhecimento e emoção juntos. O que você faz está sendo notado, e isso mexe com você por dentro mais do que você deixa transparecer.",
+    amor:"Romance intenso, paixão profunda, sonho afetivo. A emoção está acima da razão aqui — bom para viver, ruim para decidir.",
+    trabalho:"Prestígio, visibilidade, trabalho criativo ou artístico. Seu nome circulando em salas onde você não está.",
+    familia:"Vínculo emocional profundo, principalmente com a mãe. Coisa antiga, formadora, que ainda opera em você todo dia.",
+    dinheiro:"Ganho ligado à sua imagem e reputação. Rendimento com altos e baixos, que segue ciclo e não linha reta.",
+    saude:"Sono, hormônios, humor, ciclos. O emocional aparecendo no corpo de forma direta e mensurável.",
+    espiritual:"Sua intuição está afiada agora. Confie no que você sentiu antes do que te explicaram depois."}},
+
+{n:33,nome:"A Chave",b:"8♦",g:"🗝️",t:"luz",s:"sim",
+ k:"solução, certeza, abertura, destino",
+ e:"a porta abre e a solução é certa, não provável",
+ i:"e isso destrava de vez",
+ c:"Vá em frente: é isso mesmo. A dúvida que te segurava já foi respondida.",
+ m:{geral:"A porta abre. Isso tem solução, e a solução é certa — não provável, não talvez. A dúvida que te segurava já foi respondida.",
+    amor:"O entendimento que finalmente destrava o casal, ou a certeza sobre a pessoa. Também: relação com cara de destino, e é.",
+    trabalho:"Problema resolvido, aprovação que sai, porta que se abre na carreira. Aceite quando vier, sem negociar contra si mesmo.",
+    familia:"Assunto antigo finalmente resolvido em casa. Alguém cede, ou alguém entende, e o nó desata.",
+    dinheiro:"Liberação de valor, crédito aprovado, solução encontrada. O aperto tem data para acabar.",
+    saude:"Diagnóstico certo, tratamento que funciona, alta. A resposta que faltava aparece.",
+    espiritual:"É isso mesmo. A confirmação que você pediu está aqui — pare de testar o sinal e ande."}},
+
+{n:34,nome:"Os Peixes",b:"K♦",g:"🐟",t:"luz",s:"sim",
+ k:"dinheiro, fluxo, negócios, abundância",
+ e:"tem dinheiro e recursos circulando nessa história",
+ i:"com dinheiro entrando na conta dessa história",
+ c:"Deixe circular. O que você retém por medo é o que para de render.",
+ m:{geral:"Dinheiro e recursos circulando. Aqui a lógica é de fluxo: o que se move rende, o que se represa estraga.",
+    amor:"Relação em que se divide o material: contas, casa, projetos. Ou alguém de posses no assunto — o que traz conforto e complica o equilíbrio.",
+    trabalho:"Negócio próprio, comércio, autônomo, comissão. Trabalho que gera receita direta, em que o esforço vira dinheiro sem intermediário.",
+    familia:"O sustento da casa e como ele é dividido. Recursos partilhados, e as regras não ditas sobre quem paga o quê.",
+    dinheiro:"É a carta do dinheiro. Faturamento, lucro, fartura. Momento bom — e momento de organizar antes que o bom vire descontrole.",
+    saude:"Hidratação, rins, fluidos. Também: a fluidez do corpo, que responde bem a movimento e mal a rotina parada.",
+    espiritual:"Deixe circular. Aquilo que você retém por medo é exatamente o que para de render."}},
+
+{n:35,nome:"A Âncora",b:"9♠",g:"⚓",t:"luz",s:"sim",
+ k:"estabilidade, persistência, trabalho fixo, porto",
+ e:"isso se fixa e permanece",
+ i:"e aquilo se fixa, para o bem ou para o cansaço",
+ c:"Fique e persista. A constância é o que vai resolver, não uma virada.",
+ m:{geral:"Isso se fixa e permanece. Ótimo quando é bom, cansativo quando não é — e aqui é você que decide qual dos dois.",
+    amor:"Relação duradoura que resiste ao tempo. Ou uma rotina que já não muda, e que você chama de estabilidade porque a outra palavra é pior.",
+    trabalho:"Emprego fixo, estabilidade, carreira consolidada. Segurança acima de aventura, com o preço que a segurança cobra.",
+    familia:"Base familiar firme, o parente que é porto seguro. O lugar para onde se volta quando o resto desanda.",
+    dinheiro:"Renda estável, poupança, o básico garantido todo mês. Não cresce rápido e não some — e isso vale mais do que parece.",
+    saude:"Quadro estabilizado e sob controle. A persistência no tratamento é o que está funcionando; não interrompa por se sentir bem.",
+    espiritual:"Você chegou a um porto. Descanse de verdade antes de zarpar de novo — porto serve para isso."}},
+
+{n:36,nome:"A Cruz",b:"6♣",g:"✝️",t:"sombra",s:"nao",
+ k:"fardo, destino, provação, fé",
+ e:"tem um peso a carregar e ele não foi escolhido",
+ i:"transformando aquilo num fardo que precisa ser atravessado",
+ c:"Atravesse em vez de contornar. E não atravesse sozinho.",
+ m:{geral:"Tem um peso a carregar, e ele não foi escolhido. A boa notícia é que fardo tem fim; a má é que o fim vem por atravessar, não por contornar.",
+    amor:"Relação que pesa, sacrifício por amor, culpa afetiva. Vale perguntar quanto disso é dedicação e quanto é penitência.",
+    trabalho:"Responsabilidade que esmaga, dever sem alegria, carga que não é sua e ninguém devolve. Delegue o que der.",
+    familia:"Fardo familiar, o cuidado que recaiu sobre você sem votação. Peça ajuda mesmo que os outros não ofereçam.",
+    dinheiro:"Dívida pesada, obrigação que consome o mês inteiro. Renegociar não é vergonha: é a única saída aritmética.",
+    saude:"Dor, sofrimento físico, tratamento penoso. Não atravesse sozinho — procure apoio profissional e humano, os dois.",
+    espiritual:"É provação, não castigo. Tem fim, e tem sentido, mesmo que o sentido só apareça bem depois."}}
+];
+
+/* ============================================================
+   TEMAS E TIRAGENS
+   ============================================================ */
+const TEMAS = [
+  {id:"amor",      nome:"Vida amorosa",   g:"❤️", assunto:"vida amorosa", dica:"Ex.: “O que está travando minha relação com ___?” ou “O que preciso ver sobre minha vida amorosa agora?”"},
+  {id:"trabalho",  nome:"Trabalho",       g:"💼", assunto:"trabalho", dica:"Ex.: “O que me espera nessa mudança de emprego?” ou “Como conduzir esse conflito no trabalho?”"},
+  {id:"familia",   nome:"Família e casa", g:"🏠", assunto:"família e casa", dica:"Ex.: “Como melhorar minha relação com ___?” ou “O que está por trás desse clima em casa?”"},
+  {id:"dinheiro",  nome:"Dinheiro",       g:"🪙", assunto:"dinheiro", dica:"Ex.: “O que devo considerar antes dessa compra?” ou “Como está meu momento financeiro?”"},
+  {id:"saude",     nome:"Saúde e energia",g:"🌿", assunto:"saúde", dica:"Ex.: “O que meu corpo está pedindo?” — para sintoma ou diagnóstico, procure um profissional de saúde."},
+  {id:"espiritual",nome:"Caminho",        g:"✨", assunto:"seu caminho", dica:"Ex.: “Que aprendizado esse momento está me trazendo?” ou “Para onde estou sendo levado?”"},
+  {id:"geral",     nome:"Pergunta livre", g:"🔮", assunto:"o que você trouxe", dica:"Escreva livremente. Quanto mais concreta a pergunta, mais útil a leitura."}
+];
+
+const TIRAGENS = [
+  {id:"uma",   nome:"Carta do dia",  qtd:1,
+   desc:"Uma carta para orientar as próximas horas.",
+   pos:["A mensagem"]},
+  {id:"tres",  nome:"Três cartas",   qtd:3,
+   desc:"O arco do assunto: de onde vem, onde está, para onde vai.",
+   pos:["Passado","Presente","Futuro"]},
+  {id:"cinco", nome:"Cruz de cinco", qtd:5,
+   desc:"A leitura completa, com conselho e desfecho.",
+   pos:["A situação","O que ajuda","O que atrapalha","O conselho","O desfecho"]},
+  {id:"simnao",nome:"Sim ou não",    qtd:3,
+   desc:"Resposta objetiva, com o motivo por trás dela.",
+   pos:["Peso 1","Peso 2","Peso 3"]},
+  {id:"mesa",  nome:"Mesa Real",     qtd:36,
+   desc:"As 36 cartas abertas. Lê-se o que cerca quem consulta.",
+   pos:null}
+];
+
+const POS_MESA = [
+  {dx: 0,dy:-1,rot:"Acima",        txt:"o que paira sobre você — pensamentos, o que domina a cena"},
+  {dx: 0,dy: 1,rot:"Abaixo",       txt:"a base — o que já está firmado sob seus pés"},
+  {dx:-1,dy: 0,rot:"À esquerda",   txt:"o que passou — aquilo que se afasta"},
+  {dx: 1,dy: 0,rot:"À direita",    txt:"o que vem — aquilo que se aproxima"},
+  {dx:-1,dy:-1,rot:"Diagonal alta esquerda", txt:"influência antiga que ainda ecoa"},
+  {dx: 1,dy:-1,rot:"Diagonal alta direita",  txt:"o que se anuncia no horizonte"},
+  {dx:-1,dy: 1,rot:"Diagonal baixa esquerda",txt:"raiz do que ficou para trás"},
+  {dx: 1,dy: 1,rot:"Diagonal baixa direita", txt:"consequência que se constrói"}
+];
+const COLS_MESA = 6;
+
+/* ============================================================
+   SORTEIO — semente reproduzível
+   ============================================================ */
+function sementeNova(){
+  try{
+    const a = new Uint32Array(1);
+    crypto.getRandomValues(a);
+    return a[0];
+  }catch(e){
+    return Math.floor(Math.random()*4294967296);
+  }
+}
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a>>>15, 1 | a);
+    t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t;
+    return ((t ^ t>>>14) >>> 0) / 4294967296;
+  };
+}
+/* embaralhamento Fisher-Yates, sem viés */
+function embaralhar(semente){
+  const rng = mulberry32(semente >>> 0);
+  const d = BARALHO.slice();
+  for(let i = d.length - 1; i > 0; i--){
+    const j = Math.floor(rng() * (i + 1));
+    [d[i], d[j]] = [d[j], d[i]];
+  }
+  return d;
+}
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+const estado = {
+  tema:"amor",
+  tiragem:"tres",
+  significador:29,
+  cartas:[],
+  semente:null,
+  reveladas:new Set(),
+  pergunta:""
+};
+
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const temaAtual    = () => TEMAS.find(t => t.id === estado.tema);
+const tiragemAtual = () => TIRAGENS.find(t => t.id === estado.tiragem);
+const corNaipe     = b => (b.includes("♥") || b.includes("♦")) ? "vermelho" : "preto";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* armazenamento tolerante: se o navegador bloquear, cai para memória */
+const cofre = (() => {
+  let ok = true;
+  try{ localStorage.setItem("_t","1"); localStorage.removeItem("_t"); }
+  catch(e){ ok = false; }
+  let memoria = [];
+  return {
+    ler(){
+      if(!ok) return memoria;
+      try{ return JSON.parse(localStorage.getItem("cigano.diario") || "[]"); }
+      catch(e){ return []; }
+    },
+    gravar(v){
+      memoria = v;
+      if(!ok) return false;
+      try{ localStorage.setItem("cigano.diario", JSON.stringify(v)); return true; }
+      catch(e){ return false; }
+    },
+    persistente: ok
+  };
+})();
+
+/* ============================================================
+   MONTAGEM DOS CONTROLES
+   ============================================================ */
+function montarTemas(){
+  $("#temas").innerHTML = TEMAS.map(t =>
+    `<button class="ficha" role="button" aria-pressed="${t.id===estado.tema}" data-tema="${t.id}">
+       <span class="glifo">${t.g}</span>${t.nome}</button>`).join("");
+  $$("#temas .ficha").forEach(b => b.onclick = () => {
+    estado.tema = b.dataset.tema;
+    montarTemas();
+    $("#sugestao-pergunta").textContent = temaAtual().dica;
+  });
+}
+
+function montarTiragens(){
+  $("#tiragens").innerHTML = TIRAGENS.map(t =>
+    `<button class="opcao-tiragem" aria-pressed="${t.id===estado.tiragem}" data-tiragem="${t.id}">
+       <span class="qtd">${t.qtd === 1 ? "1 carta" : t.qtd + " cartas"}</span>
+       <span><strong>${t.nome}</strong><span class="desc">${t.desc}</span></span>
+     </button>`).join("");
+  $$("#tiragens .opcao-tiragem").forEach(b => b.onclick = () => {
+    estado.tiragem = b.dataset.tiragem;
+    montarTiragens();
+    $("#campo-significador").classList.toggle("oculto", estado.tiragem !== "mesa");
+  });
+}
+
+function montarSignificador(){
+  const ops = [{n:29,r:"Sou mulher"},{n:28,r:"Sou homem"}];
+  $("#significador").innerHTML = ops.map(o =>
+    `<button class="ficha" aria-pressed="${o.n===estado.significador}" data-sig="${o.n}">
+       <span class="glifo">${o.n===29?"♀":"♂"}</span>${o.r}</button>`).join("");
+  $$("#significador .ficha").forEach(b => b.onclick = () => {
+    estado.significador = +b.dataset.sig;
+    montarSignificador();
+  });
+}
+
+/* ============================================================
+   TIRAGEM
+   ============================================================ */
+function tirar(){
+  const entrada = $("#semente-entrada").value.trim();
+  let s;
+  if(entrada === ""){
+    s = sementeNova();
+  }else if(/^\d+$/.test(entrada)){
+    s = parseInt(entrada, 10) >>> 0;
+  }else{
+    /* semente em texto: converte por hash simples, para funcionar com nomes */
+    s = 0;
+    for(const ch of entrada) s = (Math.imul(s, 31) + ch.charCodeAt(0)) >>> 0;
+  }
+  estado.semente  = s;
+  estado.pergunta = $("#pergunta").value.trim();
+  const t = tiragemAtual();
+  estado.cartas   = embaralhar(s).slice(0, t.qtd);
+  estado.reveladas = new Set();
+
+  $("#preparo").classList.add("oculto");
+  $("#resultado").classList.remove("oculto");
+
+  if(t.id === "mesa"){
+    estado.cartas.forEach((_, i) => setTimeout(() => {
+      estado.reveladas.add(i);
+      const el = document.querySelector(`.carta[data-i="${i}"]`);
+      if(el) el.classList.add("aberta");
+      if(i === estado.cartas.length - 1) desenharLeitura();
+    }, 40 * i));
+  }
+  desenharResultado();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function desenharResultado(){
+  const t = tiragemAtual();
+  const eco = estado.pergunta
+    ? `<p class="pergunta-eco">“${esc(estado.pergunta)}”</p>`
+    : `<p class="pergunta-eco">${t.nome}</p>`;
+
+  $("#resultado").innerHTML = `
+    ${eco}
+    <p class="tema-eco">${temaAtual().nome} · ${t.nome}</p>
+    <div class="mesa ${t.id === "mesa" ? "real" : ""}" id="mesa"></div>
+    <div id="leitura"></div>
+    <div class="bloco" id="rodape-leitura"></div>`;
+  desenharMesa();
+  desenharLeitura();
+}
+
+function desenharMesa(){
+  const t = tiragemAtual();
+  $("#mesa").innerHTML = estado.cartas.map((c, i) => {
+    const rot = (t.pos && t.id !== "simnao") ? t.pos[i] : "";
+    const sig = (t.id === "mesa" && c.n === estado.significador) ? " destacada" : "";
+    return `<div class="carta-slot">
+      ${t.pos && t.id!=="simnao" ? `<span class="posicao">${rot}</span>` : ""}
+      <button class="carta${estado.reveladas.has(i) ? " aberta" : ""}${sig}"
+              data-i="${i}" style="animation-delay:${Math.min(i*45,900)}ms"
+              aria-label="${estado.reveladas.has(i) ? c.nome : "Carta virada para baixo, toque para revelar"}">
+        <span class="carta-giro">
+          <span class="face verso"><span class="rosacea">✦</span></span>
+          <span class="face frente">
+            <span class="num">${c.n}</span>
+            <span class="naipe ${corNaipe(c.b)}">${c.b}</span>
+            <span class="glifo">${c.g}</span>
+            <span class="nome">${c.nome}</span>
+          </span>
+        </span>
+      </button>
+    </div>`;
+  }).join("");
+
+  $$("#mesa .carta").forEach(b => b.onclick = () => {
+    const i = +b.dataset.i;
+    if(estado.reveladas.has(i)){ abrirFicha(estado.cartas[i]); return; }
+    estado.reveladas.add(i);
+    b.classList.add("aberta");
+    desenharLeitura();
+  });
+}
+
+/* ============================================================
+   REDAÇÃO — costura as cartas em texto corrido
+   Os moldes já carregam o conectivo: a variante muda conforme
+   a carta anterior tinha o mesmo tom (a) ou tom diferente (v).
+   ============================================================ */
+const MOLDES = {
+  "A mensagem":{
+    n:["O que veio para hoje é isto:","A carta de hoje diz o seguinte:","Para o dia de hoje, a mesa aponta isto:"]},
+  "Passado":{
+    n:["Isso vem de trás.","A origem está atrás:","Comecemos por onde a coisa nasceu:"]},
+  "Presente":{
+    n:["Hoje, o retrato é este:"],
+    a:["E o presente confirma:","O agora segue na mesma linha:","O presente veio no mesmo tom:"],
+    v:["Só que o presente conta outra história:","O agora, porém, virou a mão:","Acontece que hoje o quadro é outro:"]},
+  "Futuro":{
+    n:["Daqui para frente:"],
+    a:["E o rumo mantém o tom:","O que vem adiante segue nessa direção:","Adiante, a coisa continua assim:"],
+    v:["Mas o rumo muda de mão:","Adiante, porém, a coisa vira:","O que vem depois desmente o começo:"]},
+  "A situação":{
+    n:["O quadro é este:","Onde você está, exatamente:","O ponto de partida é este:"]},
+  "O que ajuda":{
+    n:["Tem coisa jogando a seu favor:"],
+    a:["E o que te ajuda vem na mesma linha:","No mesmo sentido, joga a seu favor:"],
+    v:["Do lado que te ajuda, o cenário é outro:","Em compensação, tem isto a seu favor:"]},
+  "O que atrapalha":{
+    n:["O que trabalha contra:"],
+    a:["E o obstáculo é do mesmo naipe:","Na mesma toada, atrapalha isto:"],
+    v:["Já o que atrapalha vem de outro lugar:","O que trava, porém, é outra coisa:"]},
+  "O conselho":{
+    n:["O que se pede de você:"],
+    a:["O conselho segue na mesma direção:","E a orientação confirma:"],
+    v:["E o conselho contraria o que você esperava:","A orientação, porém, vai por outro caminho:"]},
+  "O desfecho":{
+    n:["E isso termina assim:"],
+    a:["O desfecho fecha coerente com o resto:","No fim, a coisa se resolve no mesmo tom:"],
+    v:["O desfecho, no entanto, muda de tom:","No fim das contas, a virada vem daqui:"]}
+};
+
+const ABERTURAS_COM_PERGUNTA = [
+  p => `Você perguntou: “${p}”.`,
+  p => `A pergunta que você trouxe foi esta: “${p}”.`,
+  p => `“${p}” — foi o que você quis saber.`
+];
+
+const CLIMAS = {
+  claro:{
+    frase:["as cartas estão claramente a seu favor","a mesa veio aberta, sem armadilha","elas concordam entre si, e concordam com você"],
+    remate:"Não é hora de esperar mais sinais: eles já vieram."},
+  favoravel:{
+    frase:["o saldo é positivo, com ressalvas","há mais luz que sombra, e a sombra é administrável"],
+    remate:"Siga em frente sem varrer para baixo do tapete o que as cartas difíceis apontaram."},
+  dividido:{
+    frase:["as forças estão empatadas","a mesa não decidiu nada por você","a carta não fecha para nenhum dos lados"],
+    remate:"O desempate está com você, e é nas próximas semanas que ele acontece."},
+  dificil:{
+    frase:["o saldo é desafiador, ainda que exista apoio","pesa mais para o lado difícil, mas você não está sozinho nisso"],
+    remate:"Resolva o obstáculo primeiro; depois disso o resto costuma andar sozinho."},
+  pesado:{
+    frase:["a mesa veio pesada, e não adianta suavizar isso","o desenho é duro, do começo ao fim"],
+    remate:"Aqui o trabalho é reduzir dano e tratar a causa, não forçar um resultado que ainda não está maduro."}
+};
+
+/* carta única não tem conjunto a descrever: fecho próprio */
+const CLIMA_UNICA = {
+  claro:  ["a carta veio aberta e sem armadilha","não há ressalva escondida aqui"],
+  pesado: ["a carta é dura, e não adianta suavizar","veio pesada, e é assim que deve ser lida"],
+  dividido:["a carta não fecha para nenhum dos lados","ela descreve, mas não decide"]
+};
+
+/* gerador reproduzível: mesma semente, mesmo texto */
+function fazSorteador(semente){
+  const r = mulberry32((semente ^ 0x9E3779B9) >>> 0);
+  return lista => lista[Math.floor(r() * lista.length)];
+}
+
+function molde(posicao, relacao, pega){
+  const m = MOLDES[posicao];
+  if(!m) return "";
+  const opcoes = (relacao && m[relacao]) ? m[relacao] : m.n;
+  return pega(opcoes);
+}
+
+function classificaClima(cs){
+  const luz = cs.filter(c => c.t === "luz").length;
+  const sombra = cs.filter(c => c.t === "sombra").length;
+  const neutra = cs.length - luz - sombra;
+  let chave;
+  if(cs.length === 1)            chave = luz ? "claro" : sombra ? "pesado" : "dividido";
+  else if(luz > sombra + neutra) chave = "claro";
+  else if(sombra > luz + neutra) chave = "pesado";
+  else if(luz > sombra)          chave = "favoravel";
+  else if(sombra > luz)          chave = "dificil";
+  else                            chave = "dividido";
+  return {chave, luz, sombra, neutra, ...CLIMAS[chave]};
+}
+
+/* carta que dá o tom: a que confirma o clima, na posição mais decisiva */
+function cartaDominante(cs, clima){
+  const alvo = clima.chave === "pesado" || clima.chave === "dificil" ? "sombra"
+             : clima.chave === "dividido" ? null : "luz";
+  const candidatas = alvo ? cs.filter(c => c.t === alvo) : cs;
+  return candidatas.length ? candidatas[candidatas.length - 1] : cs[cs.length - 1];
+}
+
+/* ------------------------------------------------------------
+   A leitura corrida
+   ------------------------------------------------------------ */
+function redigirLeitura(){
+  const t    = tiragemAtual();
+  const cs   = estado.cartas;
+  const tema = temaAtual();
+  const pega = fazSorteador(estado.semente);
+  const clima = classificaClima(cs);
+  const par = [];
+
+  /* abertura */
+  let abre;
+  if(estado.pergunta){
+    abre = pega(ABERTURAS_COM_PERGUNTA)(esc(estado.pergunta)) +
+           ` Sobre ${tema.assunto}, ${cs.length === 1 ? "a carta que saiu" : "as " + cs.length + " cartas"} dizem o seguinte.`;
+  }else{
+    abre = `Sem pergunta escrita, a leitura vale para o momento como um todo, no campo de ${tema.assunto}.`;
+  }
+  par.push(`<p class="abre">${abre}</p>`);
+
+  /* corpo: um parágrafo por posição, costurado pelo tom */
+  cs.forEach((c, i) => {
+    const pos = t.pos ? t.pos[i] : "A mensagem";
+    const rel = i === 0 ? null : (c.t === cs[i-1].t ? "a" : "v");
+    const abertura = molde(pos, rel, pega);
+    const corpo = pos === "O conselho" ? c.c : c.m[estado.tema];
+    par.push(`<p><span class="marca">${abertura}</span> ${corpo}
+      <span class="assina">— ${c.n}. ${c.nome}</span></p>`);
+  });
+
+  /* fechamento */
+  const dom = cartaDominante(cs, clima);
+  const contagem = cs.length === 1 ? ""
+    : ` — ${clima.luz} de luz, ${clima.neutra} neutra${clima.neutra===1?"":"s"} e ${clima.sombra} de sombra`;
+  const abreFecho = cs.length === 1 ? "No fim das contas" : "No conjunto";
+  const frase = cs.length === 1 ? pega(CLIMA_UNICA[clima.chave]) : pega(clima.frase);
+  let fecha = `${abreFecho}, ${frase}${contagem}. Quem dá o tom é <strong>${dom.nome}</strong>. O conselho que vem com essa carta é curto: ${primeiraMinuscula(dom.c)} ${clima.remate}`;
+  par.push(`<p class="fecha">${fecha}</p>`);
+
+  if(estado.tema === "saude"){
+    par.push(`<p class="ressalva">Leitura de saúde aqui é reflexão, não diagnóstico. Sintoma que persiste, piora ou assusta é assunto de consulta, não de carta.</p>`);
+  }
+
+  return `<div class="bloco prosa"><span class="rotulo">A leitura</span>${par.join("")}</div>`;
+}
+
+const primeiraMinuscula = s => s.charAt(0).toLowerCase() + s.slice(1);
+
+/* ------------------------------------------------------------
+   Tira compacta com as cartas que saíram
+   ------------------------------------------------------------ */
+function tiraCartas(){
+  const t = tiragemAtual();
+  return `<div class="bloco"><span class="rotulo">As cartas que saíram</span>
+    <div class="tira">${estado.cartas.map((c, i) => `
+      <button class="pastilha" data-carta="${c.n}">
+        <span class="glifo">${c.g}</span>
+        <span><strong>${c.n}. ${c.nome}</strong>
+        <span class="pastilha-sub">${t.pos && t.id !== "simnao" ? t.pos[i] + " · " : ""}${c.k}</span></span>
+        <span class="tom ${c.t}">${c.t}</span>
+      </button>`).join("")}</div>
+    <p class="ajuda" style="margin-top:10px">Toque em qualquer carta para abrir a ficha completa.</p></div>`;
+}
+
+/* ============================================================
+   LEITURA
+   ============================================================ */
+function verbete(c, cargo){
+  return `<div class="verbete">
+    ${cargo ? `<span class="cargo">${cargo}</span>` : ""}
+    <h3>${c.n}. ${c.nome} <span class="tom ${c.t}">${c.t}</span></h3>
+    <p>${c.m[estado.tema]}</p>
+    <p class="chaves">${c.k} · ${c.b}</p>
+  </div>`;
+}
+
+function desenharLeitura(){
+  const t = tiragemAtual();
+  const total = estado.cartas.length;
+  const abertas = estado.reveladas.size;
+  let html = "";
+
+  if(abertas === 0){
+    html = t.id === "mesa"
+      ? `<div class="bloco"><p class="vazio" style="padding:14px">Abrindo a mesa…</p></div>`
+      : `<div class="bloco"><p class="vazio" style="padding:14px">
+      As cartas estão na mesa. Toque em uma de cada vez, sem pressa.</p>
+      <button class="botao discreto" id="btn-virar-todas">Virar todas</button></div>`;
+  }else{
+    if(t.id === "simnao"){
+      html += desenharSimNao();
+    }else if(t.id === "mesa"){
+      html += desenharMesaReal();
+    }else if(abertas === total){
+      html += redigirLeitura();
+      html += tiraCartas();
+      if(total > 1) html += desenharCombinacoes();
+    }else{
+      html += `<div class="bloco"><span class="rotulo">Reveladas até agora</span>`;
+      estado.cartas.forEach((c, i) => {
+        if(estado.reveladas.has(i)) html += verbete(c, t.pos ? t.pos[i] : "");
+      });
+      html += `<p class="ajuda">A leitura costurada aparece quando todas as cartas estiverem viradas.</p></div>`;
+    }
+    if(abertas < total){
+      html += `<button class="botao discreto" id="btn-virar-todas">Virar as ${total - abertas} restantes</button>`;
+    }
+  }
+  $("#leitura").innerHTML = html;
+
+  $$("#leitura .pastilha").forEach(b =>
+    b.onclick = () => abrirFicha(BARALHO.find(c => c.n === +b.dataset.carta)));
+
+  const bv = $("#btn-virar-todas");
+  if(bv) bv.onclick = () => {
+    estado.cartas.forEach((_, i) => setTimeout(() => {
+      estado.reveladas.add(i);
+      const el = document.querySelector(`.carta[data-i="${i}"]`);
+      if(el) el.classList.add("aberta");
+      if(i === estado.cartas.length - 1) desenharLeitura();
+    }, 70 * i));
+  };
+  desenharRodape();
+}
+
+function desenharCombinacoes(){
+  let h = `<div class="bloco"><span class="rotulo">Como as cartas conversam</span>`;
+  for(let i = 0; i < estado.cartas.length - 1; i++){
+    const a = estado.cartas[i], b = estado.cartas[i+1];
+    h += `<div class="verbete"><h3>${a.nome} + ${b.nome}</h3>
+      <p>${maiuscula(a.e)}, ${b.i}.</p></div>`;
+  }
+  return h + `</div>`;
+}
+
+const maiuscula = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+function desenharSintese(){
+  const cs = estado.cartas;
+  const luz = cs.filter(c => c.t === "luz").length;
+  const sombra = cs.filter(c => c.t === "sombra").length;
+  const neutra = cs.length - luz - sombra;
+  const t = tiragemAtual();
+
+  let clima, conselho;
+  if(luz > sombra + neutra){
+    clima = "O conjunto está claramente favorável.";
+    conselho = "O momento pede que você avance, não que espere mais sinais.";
+  }else if(sombra > luz + neutra){
+    clima = "O conjunto está pesado, e não adianta suavizar isso.";
+    conselho = "O caminho aqui é reduzir dano e tratar a causa, não forçar resultado.";
+  }else if(luz > sombra){
+    clima = "O saldo é positivo, com ressalvas.";
+    conselho = "Siga em frente, mas sem ignorar o que as cartas difíceis apontaram.";
+  }else if(sombra > luz){
+    clima = "O saldo é desafiador, ainda que haja apoio.";
+    conselho = "Resolva primeiro o obstáculo; depois disso o resto anda sozinho.";
+  }else{
+    clima = "As forças estão equilibradas — o resultado depende do que você fizer.";
+    conselho = "Nada está decidido. Sua escolha nas próximas semanas é o fator de desempate.";
+  }
+
+  const dominante = cs.find(c => c.t === (sombra > luz ? "sombra" : "luz")) || cs[0];
+  const fecho = t.id === "cinco" || t.id === "tres" ? cs[cs.length-1] : null;
+
+  return `<div class="bloco sintese"><span class="rotulo">Síntese</span>
+    <p>${clima} Foram ${luz} carta${luz===1?"":"s"} de luz, ${neutra} neutra${neutra===1?"":"s"} e ${sombra} de sombra.</p>
+    <p>Quem dá o tom é <strong>${dominante.nome}</strong>: ${dominante.e}.
+       ${fecho ? `E o assunto caminha para <strong>${fecho.nome}</strong> — ${fecho.e}.` : ""}</p>
+    <p>${conselho}</p>
+  </div>`;
+}
+
+function desenharSimNao(){
+  const cs = estado.cartas.filter((_, i) => estado.reveladas.has(i));
+  if(cs.length < estado.cartas.length){
+    let h = `<div class="bloco"><span class="rotulo">Pesando a resposta</span>`;
+    cs.forEach(c => h += verbete(c, ""));
+    return h + `</div>`;
+  }
+  const placar = estado.cartas.reduce((s, c) => s + (c.s === "sim" ? 1 : c.s === "nao" ? -1 : 0), 0);
+  const v = placar > 0 ? "sim" : placar < 0 ? "nao" : "talvez";
+  const rot = v === "sim" ? "Sim" : v === "nao" ? "Não" : "Ainda não";
+  const nota = {
+    sim:"As cartas concordam. O caminho está aberto — e a resposta não é frágil.",
+    nao:"As cartas negam. Não é teimosia do destino: é aviso de que as condições ainda não estão dadas.",
+    talvez:"As cartas se dividem. A pergunta como você a fez não tem resposta fechada; refaça-a de forma mais específica."
+  }[v];
+
+  let h = `<div class="bloco sintese">
+    <p class="veredito ${v}">${rot}</p>
+    <p class="veredito-nota">${nota}</p></div>
+    <div class="bloco"><span class="rotulo">O motivo</span>`;
+  estado.cartas.forEach(c => h += verbete(c, c.s === "sim" ? "a favor" : c.s === "nao" ? "contra" : "indefinido"));
+  return h + `</div>`;
+}
+
+function desenharMesaReal(){
+  if(estado.reveladas.size < 36) return `<div class="bloco"><p class="vazio" style="padding:14px">Abrindo a mesa…</p></div>`;
+  const idx = estado.cartas.findIndex(c => c.n === estado.significador);
+  const linha = Math.floor(idx / COLS_MESA), col = idx % COLS_MESA;
+  const sigCarta = estado.cartas[idx];
+
+  const pega = fazSorteador(estado.semente);
+  const abre = estado.pergunta
+    ? pega(ABERTURAS_COM_PERGUNTA)(esc(estado.pergunta)) + " As trinta e seis cartas foram abertas de uma vez; o que vale é onde você caiu no meio delas."
+    : "As trinta e seis cartas estão abertas. O que vale numa mesa cheia é a vizinhança: onde você caiu e quem ficou em volta.";
+  let h = `<div class="bloco prosa"><p class="abre">${abre}</p></div>
+    <div class="bloco"><span class="rotulo">Sua posição na mesa</span>
+    <div class="verbete"><span class="cargo">Casa ${idx+1} · linha ${linha+1}, coluna ${col+1}</span>
+      <h3>${sigCarta.nome}</h3>
+      <p>${linha <= 1 ? "Você caiu na parte alta da mesa: o assunto está mais na cabeça e nos planos do que nos fatos."
+        : linha >= 4 ? "Você caiu na parte baixa da mesa: o assunto já desceu para o concreto e cobra atitude."
+        : "Você caiu no meio da mesa: o assunto está em pleno curso, nem no começo nem no fim."}</p>
+    </div></div>
+    <div class="bloco"><span class="rotulo">O que cerca você</span>`;
+
+  let achou = 0;
+  POS_MESA.forEach(p => {
+    const l = linha + p.dy, c2 = col + p.dx;
+    if(l < 0 || c2 < 0 || c2 >= COLS_MESA) return;
+    const j = l * COLS_MESA + c2;
+    if(j < 0 || j >= estado.cartas.length) return;
+    const c = estado.cartas[j];
+    achou++;
+    h += `<div class="verbete"><span class="cargo">${p.rot} — ${p.txt}</span>
+      <h3>${c.n}. ${c.nome} <span class="tom ${c.t}">${c.t}</span></h3>
+      <p>${c.m[estado.tema]}</p></div>`;
+  });
+  if(!achou) h += `<p class="vazio">Sua carta caiu na borda da mesa, quase sem vizinhas — sinal de que você está lidando com isso mais sozinho do que gostaria.</p>`;
+  h += `</div>`;
+
+  const ultima = estado.cartas[35];
+  h += `<div class="bloco sintese"><span class="rotulo">Desfecho da mesa</span>
+    <p>A última carta da mesa é <strong>${ultima.nome}</strong>. ${maiuscula(ultima.e)} — é para lá que o conjunto aponta quando tudo se assenta.</p>
+    <p>${ultima.m[estado.tema]}</p></div>`;
+  return h;
+}
+
+/* ============================================================
+   RODAPÉ DA LEITURA — semente, salvar, exportar, nova
+   ============================================================ */
+function desenharRodape(){
+  const r = $("#rodape-leitura");
+  if(!r) return;
+  r.innerHTML = `
+    <div class="semente">
+      <span>semente desta tiragem</span>
+      <code>${estado.semente}</code>
+    </div>
+    <div class="linha-botoes" style="margin-top:14px">
+      <button class="botao discreto" id="btn-salvar">Salvar no diário</button>
+      <button class="botao discreto" id="btn-copiar">Copiar leitura</button>
+      <button class="botao discreto" id="btn-baixar">Baixar .txt</button>
+    </div>
+    <button class="botao" id="btn-nova" style="margin-top:10px">Nova tiragem</button>`;
+
+  $("#btn-nova").onclick = () => {
+    $("#resultado").classList.add("oculto");
+    $("#preparo").classList.remove("oculto");
+    $("#semente-entrada").value = "";
+    window.scrollTo({top:0, behavior:"smooth"});
+  };
+  $("#btn-salvar").onclick = e => {
+    const d = cofre.ler();
+    d.unshift({
+      quando:new Date().toISOString(),
+      tema:estado.tema, tiragem:estado.tiragem,
+      pergunta:estado.pergunta, semente:estado.semente,
+      significador:estado.significador
+    });
+    const ok = cofre.gravar(d.slice(0, 200));
+    e.target.textContent = ok ? "Salvo ✓" : "Salvo só nesta sessão";
+    e.target.disabled = true;
+    desenharDiario();
+  };
+  $("#btn-copiar").onclick = async e => {
+    try{
+      await navigator.clipboard.writeText(leituraEmTexto());
+      e.target.textContent = "Copiado ✓";
+    }catch(err){
+      e.target.textContent = "Copie manualmente do texto acima";
+    }
+  };
+  $("#btn-baixar").onclick = () => {
+    const blob = new Blob([leituraEmTexto()], {type:"text/plain;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `leitura-${estado.semente}.txt`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+}
+
+function leituraEmTexto(){
+  const t = tiragemAtual();
+  const L = [];
+  L.push("BARALHO CIGANO — " + new Date().toLocaleString("pt-BR"));
+  L.push("Tema: " + temaAtual().nome);
+  if(estado.pergunta) L.push("Pergunta: " + estado.pergunta);
+  L.push("Tiragem: " + t.nome + " · semente " + estado.semente);
+  L.push("");
+  if(t.id === "mesa"){
+    const idx = estado.cartas.findIndex(c => c.n === estado.significador);
+    const li = Math.floor(idx / COLS_MESA), co = idx % COLS_MESA;
+    L.push("SIGNIFICADOR na casa " + (idx+1) + " (linha " + (li+1) + ", coluna " + (co+1) + ")");
+    L.push("");
+    POS_MESA.forEach(p => {
+      const l = li + p.dy, c2 = co + p.dx;
+      if(l < 0 || c2 < 0 || c2 >= COLS_MESA) return;
+      const j = l * COLS_MESA + c2;
+      if(j < 0 || j >= 36) return;
+      const c = estado.cartas[j];
+      L.push(p.rot.toUpperCase() + " (" + p.txt + ")");
+      L.push(c.n + ". " + c.nome + " (" + c.b + ") — " + c.m[estado.tema]);
+      L.push("");
+    });
+    L.push("Ordem completa da mesa:");
+    L.push(estado.cartas.map(c => c.n + " " + c.nome).join(" · "));
+    L.push("");
+  }else{
+    const tmp = document.createElement("div");
+    tmp.innerHTML = (t.id === "simnao" ? desenharSimNao() : redigirLeitura());
+    tmp.querySelectorAll("p").forEach(p => { L.push(p.textContent.trim()); L.push(""); });
+    L.push("CARTAS");
+    estado.cartas.forEach((c, i) => {
+      const rot = (t.pos && t.id !== "simnao") ? t.pos[i] + " — " : "";
+      L.push(rot + c.n + ". " + c.nome + " (" + c.b + ") · " + c.k);
+    });
+    L.push("");
+  }
+  L.push("— gerado offline, sem envio de dados.");
+  return L.join("\n");
+}
+
+/* ============================================================
+   BARALHO — consulta das 36 cartas
+   ============================================================ */
+function montarGradeBaralho(){
+  $("#grade-baralho").innerHTML = BARALHO.map(c =>
+    `<button class="item-baralho" data-n="${c.n}">
+       <span class="glifo">${c.g}</span>
+       <span><span class="n">${c.n} · ${c.b}</span><strong>${c.nome}</strong></span>
+     </button>`).join("");
+  $$("#grade-baralho .item-baralho").forEach(b =>
+    b.onclick = () => abrirFicha(BARALHO.find(c => c.n === +b.dataset.n)));
+}
+
+function abrirFicha(c){
+  $("#ficha-carta").innerHTML = `
+    <header>
+      <span class="glifo-grande">${c.g}</span>
+      <h2>${c.n}. ${c.nome}</h2>
+      <p class="meta">${c.b} · ${c.t} · ${c.s === "sim" ? "tende ao sim" : c.s === "nao" ? "tende ao não" : "sem resposta fechada"}</p>
+    </header>
+    <dl>
+      <dt>Palavras-chave</dt><dd>${c.k}</dd>
+      ${TEMAS.map(t => `<dt>${t.nome}</dt><dd>${c.m[t.id]}</dd>`).join("")}
+      <dt>Em combinação</dt><dd>Quando vem depois de outra carta, indica que aquilo acontece ${c.i}.</dd>
+    </dl>
+    <button class="botao discreto" id="btn-fechar-ficha" style="margin-top:20px">Fechar</button>`;
+  $("#cortina").classList.add("aberta");
+  $("#btn-fechar-ficha").onclick = fecharFicha;
+  $("#btn-fechar-ficha").focus();
+}
+function fecharFicha(){ $("#cortina").classList.remove("aberta"); }
+
+/* ============================================================
+   DIÁRIO
+   ============================================================ */
+function desenharDiario(){
+  const d = cofre.ler();
+  const lista = $("#lista-diario");
+  if(!d.length){
+    lista.innerHTML = `<p class="vazio">Nenhuma leitura salva ainda.<br>Faça uma tiragem e toque em “Salvar no diário”.</p>`;
+    $("#acoes-diario").innerHTML = "";
+    return;
+  }
+  lista.innerHTML = d.map((r, i) => {
+    const tm = TEMAS.find(t => t.id === r.tema), tg = TIRAGENS.find(t => t.id === r.tiragem);
+    const cartas = embaralhar(r.semente).slice(0, tg ? tg.qtd : 3);
+    const nomes = (tg && tg.qtd > 6 ? cartas.slice(0,6) : cartas).map(c => c.nome).join(" · ");
+    return `<div class="registro">
+      <span class="quando">${new Date(r.quando).toLocaleString("pt-BR")}</span>
+      <p class="titulo">${r.pergunta ? esc(r.pergunta) : (tm ? tm.nome : "")}</p>
+      <p class="cartas">${tm ? tm.g + " " + tm.nome : ""} · ${tg ? tg.nome : ""} · semente ${r.semente}<br>${nomes}${tg && tg.qtd > 6 ? " …" : ""}</p>
+      <div class="acoes">
+        <button data-abrir="${i}">Reabrir</button>
+        <button data-apagar="${i}">Apagar</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  $$("#lista-diario [data-abrir]").forEach(b => b.onclick = () => {
+    const r = cofre.ler()[+b.dataset.abrir];
+    estado.tema = r.tema; estado.tiragem = r.tiragem;
+    estado.pergunta = r.pergunta || ""; estado.semente = r.semente;
+    if(r.significador) estado.significador = r.significador;
+    const tg = tiragemAtual();
+    estado.cartas = embaralhar(r.semente).slice(0, tg.qtd);
+    estado.reveladas = new Set(estado.cartas.map((_, i) => i));
+    montarTemas(); montarTiragens();
+    $("#pergunta").value = estado.pergunta;
+    $("#preparo").classList.add("oculto");
+    $("#resultado").classList.remove("oculto");
+    irPara("tela-tirar");
+    desenharResultado();
+  });
+  $$("#lista-diario [data-apagar]").forEach(b => b.onclick = () => {
+    const d2 = cofre.ler();
+    d2.splice(+b.dataset.apagar, 1);
+    cofre.gravar(d2);
+    desenharDiario();
+  });
+
+  $("#acoes-diario").innerHTML = `<button class="botao discreto" id="btn-limpar-diario">Apagar tudo</button>`;
+  $("#btn-limpar-diario").onclick = e => {
+    if(e.target.dataset.confirmar){ cofre.gravar([]); desenharDiario(); }
+    else{ e.target.dataset.confirmar = "1"; e.target.textContent = "Tem certeza? Toque de novo"; }
+  };
+}
+
+/* ============================================================
+   NAVEGAÇÃO
+   ============================================================ */
+function irPara(id){
+  $$(".tela").forEach(s => s.classList.toggle("ativa", s.id === id));
+  $$(".aba").forEach(a => a.setAttribute("aria-selected", a.dataset.tela === id));
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ============================================================
+   PARTIDA
+   ============================================================ */
+montarTemas();
+montarTiragens();
+montarSignificador();
+montarGradeBaralho();
+desenharDiario();
+$("#sugestao-pergunta").textContent = temaAtual().dica;
+$("#btn-embaralhar").onclick = tirar;
+$$(".aba").forEach(a => a.onclick = () => {
+  irPara(a.dataset.tela);
+  if(a.dataset.tela === "tela-diario") desenharDiario();
+});
+$("#cortina").onclick = e => { if(e.target.id === "cortina") fecharFicha(); };
+document.addEventListener("keydown", e => { if(e.key === "Escape") fecharFicha(); });
+
+</script>
+</body>
+</html>
