@@ -179,8 +179,10 @@ button:focus-visible,.ficha:focus-visible,.carta:focus-visible,.aba:focus-visibl
 @media(max-width:379px){.mesa.real .frente .nome{display:none}}
 
 .carta{
-  position:relative;aspect-ratio:5/8;perspective:1100px;
-  background:none;border:none;padding:0;cursor:pointer;
+  position:relative;display:block;width:100%;
+  height:0;padding:0 0 160%;          /* 5:8 — altura definida, não depende do pai */
+  perspective:1100px;
+  background:none;border:none;cursor:pointer;
   animation:distribuir .5s cubic-bezier(.2,.9,.25,1) both;
 }
 @keyframes distribuir{
@@ -188,7 +190,7 @@ button:focus-visible,.ficha:focus-visible,.carta:focus-visible,.aba:focus-visibl
   to{opacity:1;transform:none}
 }
 .carta-giro{
-  position:relative;width:100%;height:100%;
+  position:absolute;inset:0;
   transform-style:preserve-3d;
   transition:transform .75s cubic-bezier(.2,.8,.2,1);
 }
@@ -254,14 +256,14 @@ button:focus-visible,.ficha:focus-visible,.carta:focus-visible,.aba:focus-visibl
 .mesa.real .frente .num,.mesa.real .frente .naipe{font-size:9px;top:3px}
 .mesa.real .frente .num{left:5px}.mesa.real .frente .naipe{right:5px}
 .mesa.real .verso .rosacea{font-size:15px}
-.mesa.real .carta{aspect-ratio:5/7.4}
+.mesa.real .carta{padding-bottom:148%}
 
 .posicao{
   display:block;text-align:center;font-family:var(--serif);
   font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--latao);margin-bottom:6px;min-height:14px;
 }
-.carta-slot{display:flex;flex-direction:column}
+.carta-slot{display:block;min-width:0}
 .destacada .verso,.destacada .frente{box-shadow:0 0 0 2px var(--latao),0 8px 22px rgba(0,0,0,.6)}
 
 /* ---------- leitura ---------- */
@@ -345,6 +347,19 @@ button:focus-visible,.ficha:focus-visible,.carta:focus-visible,.aba:focus-visibl
   color:var(--marfim-fraco);background:rgba(156,48,48,.12);
   border-left:2px solid var(--sangue);padding:10px 12px;border-radius:0 8px 8px 0;
 }
+.convite{
+  text-align:center;font-family:var(--serif);font-size:15.5px;
+  color:var(--marfim-fraco);line-height:1.6;margin:6px 0 16px;
+}
+.convite strong{color:var(--latao);font-weight:400}
+.progresso{
+  height:3px;background:rgba(237,228,211,.10);border-radius:2px;
+  overflow:hidden;margin-bottom:16px;
+}
+.progresso span{
+  display:block;height:100%;background:var(--latao);
+  transition:width .45s cubic-bezier(.2,.8,.2,1);
+}
 .tira{display:flex;flex-direction:column;gap:6px}
 .pastilha{
   display:flex;align-items:center;gap:11px;width:100%;text-align:left;
@@ -357,6 +372,51 @@ button:focus-visible,.ficha:focus-visible,.carta:focus-visible,.aba:focus-visibl
 .pastilha strong{font-size:13.5px;font-weight:600;display:block}
 .pastilha-sub{display:block;font-size:11.5px;color:var(--marfim-fraco);line-height:1.35}
 .pastilha .tom{margin-left:auto;flex-shrink:0}
+
+/* ---------- como encaixar na vida ---------- */
+.encaixe{
+  background:linear-gradient(165deg,rgba(47,93,78,.20),rgba(20,10,16,.72));
+  border-color:rgba(159,214,191,.28);
+}
+.encaixe .rotulo{color:#9fd6bf}
+.encaixe-intro{
+  font-size:13.5px;color:var(--marfim-fraco);margin:0 0 14px;line-height:1.55;
+}
+.encaixe .sub{
+  display:block;font-family:var(--serif);font-size:10.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--marfim-fraco);margin:0 0 10px;
+}
+.encaixe .sub:not(:first-of-type){margin-top:20px}
+.hipoteses,.cenarios{list-style:none;margin:0;padding:0}
+.cenarios li{
+  font-size:14.5px;line-height:1.58;padding:0 0 0 16px;margin-bottom:12px;
+  position:relative;color:var(--marfim);
+}
+.cenarios li:last-child{margin-bottom:0}
+.cenarios li::before{
+  content:"—";position:absolute;left:0;color:rgba(159,214,191,.55);
+}
+.cenarios strong{color:#9fd6bf;font-weight:600}
+.ponte-espelho{
+  font-size:13.5px;line-height:1.55;color:var(--marfim-fraco);
+  margin:18px 0 0;padding-top:15px;border-top:1px solid rgba(237,228,211,.10);
+}
+.ponte-espelho strong{color:var(--marfim)}
+.hipoteses li{
+  font-family:var(--serif);font-size:15.5px;line-height:1.62;
+  border-left:2px solid rgba(159,214,191,.4);padding:2px 0 2px 14px;margin-bottom:15px;
+}
+.hipoteses li:last-child{margin-bottom:0}
+.pergunta-espelho{
+  font-family:var(--serif);font-style:italic;font-size:17px;text-align:center;
+  color:var(--latao);margin:20px 0 0;padding:16px 10px 0;
+  border-top:1px solid rgba(201,162,74,.22);line-height:1.5;
+}
+.nao-diz{
+  font-size:12.5px;line-height:1.55;color:var(--marfim-fraco);
+  margin:16px 0 0;padding-top:13px;border-top:1px solid rgba(237,228,211,.10);
+}
+.nao-diz strong{color:var(--marfim);font-weight:600}
 
 /* ---------- baralho / diário ---------- */
 .grade-baralho{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -541,6 +601,7 @@ const BARALHO = [
  k:"notícia, chegada, movimento, visita",
  e:"alguma coisa está a caminho e chega antes do que você calcula",
  i:"e é uma notícia vinda de fora que põe isso em movimento",
+ p:"O que você está esperando chegar — e o que muda de fato quando chegar?",
  c:"Não corra atrás: prepare-se para receber. O que precisa chegar já saiu.",
  m:{geral:"Alguma coisa está a caminho e chega antes do que você calcula. O movimento não parte de você: vem de fora, e você vai reagir a ele em vez de provocá-lo.",
     amor:"Alguém vai aparecer, escrever ou reaparecer. Se você está esperando uma resposta, ela vem — e vem rápido o bastante para te pegar sem o discurso pronto.",
@@ -554,6 +615,7 @@ const BARALHO = [
  k:"sorte breve, oportunidade, alívio, acaso",
  e:"existe uma brecha, e ela é pequena e curta",
  i:"com um golpe de sorte que não vai durar",
+ p:"Qual oportunidade você está deixando esfriar enquanto pondera?",
  c:"Aja hoje. Essa janela não espera você terminar de pensar.",
  m:{geral:"Existe uma brecha, e ela é pequena e curta. Serve para destravar alguma coisa, não para resolver o problema inteiro — e fecha rápido se você ficar pensando.",
     amor:"Um encontro leve, uma noite boa, um flerte que anima. É bom enquanto dura e não pede que você decida nada. Só não confunda o alívio com começo de história.",
@@ -567,6 +629,7 @@ const BARALHO = [
  k:"viagem, distância, comércio, partida",
  e:"o caminho passa por sair de onde você está",
  i:"e isso envolve distância, ou algo que vem de longe",
+ p:"Do que você teria de abrir mão para sair do lugar?",
  c:"Saia do lugar. A resposta não está no raio de onde você já procurou.",
  m:{geral:"O caminho passa por sair de onde você está. Pode ser deslocamento físico, pode ser abrir mão de uma posição confortável — mas ficar parado não é uma das opções.",
     amor:"Distância no meio: alguém de outra cidade, uma fase em que um dos dois precisa se afastar, ou uma relação que só funciona com espaço entre as pessoas.",
@@ -580,6 +643,7 @@ const BARALHO = [
  k:"lar, família, segurança, base",
  e:"a base é firme e aguenta o que vier em cima",
  i:"em terreno seguro, dentro do que já é seu",
+ p:"O que na sua base você anda tratando como garantido?",
  c:"Consolide antes de expandir. A base aguenta, mas não aguenta tudo ao mesmo tempo.",
  m:{geral:"A base é firme e aguenta o que vier em cima. O que está construído aqui não desaba por causa de um mês ruim — tem raiz e tem história.",
     amor:"Relação com projeto de vida junto: morar, dividir, apresentar à família, planejar o que vem em cinco anos. Segurança acima de arrebatamento.",
@@ -593,6 +657,7 @@ const BARALHO = [
  k:"saúde, raízes, crescimento lento, ancestralidade",
  e:"isso cresce devagar e tem raiz mais funda do que aparenta",
  i:"num processo lento, que não obedece à sua pressa",
+ p:"O que você está tentando apressar que não tem pressa?",
  c:"Dê tempo ao tempo e use o tempo. Cuide da raiz, não da folha.",
  m:{geral:"Isso cresce devagar e tem raiz mais funda do que aparenta. Não se resolve com pressa; em compensação, o que se resolve aqui fica resolvido.",
     amor:"Vínculo com história, que amadurece no seu próprio tempo. Apertar o passo estraga. Se parece lento, é porque é — e é assim que dura.",
@@ -606,6 +671,7 @@ const BARALHO = [
  k:"confusão, dúvida, instabilidade, o que está oculto",
  e:"você está decidindo no escuro e sabe disso",
  i:"em meio a informação incompleta e gente pouco clara",
+ p:"Que informação está faltando — e quem a tem?",
  c:"Não decida agora. Junte informação e espere a névoa levantar.",
  m:{geral:"Você está decidindo no escuro e sabe disso. Falta informação, e ela não está faltando por acaso: ou alguém não está contando tudo, ou você ainda não quis olhar direito.",
     amor:"Você está tentando ler alguém que nem ele mesmo se entende. Os sinais se contradizem porque a pessoa se contradiz. Cobrar definição agora só produz resposta falsa.",
@@ -619,6 +685,7 @@ const BARALHO = [
  k:"desvio, astúcia, traição, sabedoria dura",
  e:"nada aqui vai em linha reta, e tem alguém agindo por interesse próprio",
  i:"com um desvio ou um interesse escondido no meio do caminho",
+ p:"Quem ganha alguma coisa se você continuar acreditando nisso?",
  c:"Confira o que te disseram. Não repita nada sem verificar a fonte.",
  m:{geral:"Nada aqui vai em linha reta. Tem uma volta a dar, e tem alguém agindo por interesse próprio — o que não é necessariamente contra você, mas também não é por você.",
     amor:"Ciúme, terceira pessoa, ou alguém seduzindo com segunda intenção. Também pode ser a paixão intensa que você sabe que é má ideia e vai viver mesmo assim.",
@@ -632,6 +699,7 @@ const BARALHO = [
  k:"fim, luto, transformação, encerramento",
  e:"um ciclo terminou e insistir nele só prolonga o desgaste",
  i:"levando aquilo a um encerramento sem volta",
+ p:"O que já acabou e você ainda visita?",
  c:"Encerre de vez. Enterrar bem é o trabalho desta fase, e é trabalho.",
  m:{geral:"Um ciclo terminou. Insistir nele só prolonga o desgaste, e a parte mais cansativa disso não é o fim: é o tempo que você vai levar para admitir que acabou.",
     amor:"Fim, esfriamento, luto afetivo. Às vezes não é a pessoa que morre, é a expectativa que você tinha sobre ela — e essa morte dói igual.",
@@ -645,6 +713,7 @@ const BARALHO = [
  k:"presente, convite, beleza, gentileza",
  e:"alguma coisa bonita acontece, e o melhor dela é que é sincera",
  i:"de um jeito bonito e sem cobrança embutida",
+ p:"O que de bom está acontecendo que você não parou para reconhecer?",
  c:"Aceite o que estão te oferecendo, e retribua. Reconhecimento também se cultiva.",
  m:{geral:"Alguma coisa bonita acontece, e o melhor dela é que é sincera. Não tem cobrança embutida, não é armadilha, não vem com fatura depois.",
     amor:"Cortejo, presente, declaração, um encontro que encanta de verdade. Alguém está cuidando de você com capricho — deixe cuidar.",
@@ -658,6 +727,7 @@ const BARALHO = [
  k:"corte, decisão súbita, ruptura, colheita",
  e:"o corte vem rápido e sem meio-termo",
  i:"e isso é cortado de uma vez, pela raiz",
+ p:"Que decisão você já tomou por dentro e ainda não executou?",
  c:"Corte. Doer rápido é melhor do que doer por mais seis meses.",
  m:{geral:"O corte vem rápido e sem meio-termo. O que se separa agora não volta a colar — o que assusta, mas também encerra a dúvida que estava consumindo você.",
     amor:"Rompimento repentino, ou o fim súbito de uma dúvida que se arrastava há meses. De um jeito ou de outro, a indefinição acaba.",
@@ -671,6 +741,7 @@ const BARALHO = [
  k:"conflito, repetição, esforço, discussão",
  e:"o mesmo problema voltou porque a causa nunca foi tratada",
  i:"com atrito e desgaste que já se repetiram antes",
+ p:"Qual é a sua fala fixa dentro dessa discussão?",
  c:"Pare de repetir a mesma resposta. O ciclo só quebra quando você muda a sua parte.",
  m:{geral:"O mesmo problema voltou porque a causa nunca foi tratada. Você já conhece o roteiro inteiro dessa discussão, inclusive a parte em que ninguém muda de ideia.",
     amor:"A mesma briga, na mesma toada, com as mesmas falas. Também aparece como atração física intensa que sobrevive ao desgaste e ainda o alimenta.",
@@ -684,6 +755,7 @@ const BARALHO = [
  k:"conversa, ansiedade, fofoca, dois",
  e:"tem muita conversa em volta e algum nervosismo junto",
  i:"cercado de conversa alheia e de nervosismo",
+ p:"Quanto do que você está sentindo é seu, e quanto é comentário alheio?",
  c:"Fale menos e escute mais. Diminua o ruído antes de procurar o sinal.",
  m:{geral:"Tem muita conversa em volta e algum nervosismo junto. Parte do que você está sentindo é ansiedade legítima; a outra parte é ruído de gente opinando.",
     amor:"Conversa necessária, discussão da relação, ou terceiros comentando o que não é da conta deles. Falem diretamente, sem intermediário e sem plateia.",
@@ -697,6 +769,7 @@ const BARALHO = [
  k:"começo, inocência, pequeno, filho",
  e:"alguma coisa começa, e é pequena, promissora e frágil",
  i:"num começo pequeno, que ainda precisa de proteção",
+ p:"O que está começando e ainda não aguenta exposição?",
  c:"Comece pequeno e proteja o começo. Ainda não é hora de mostrar para todo mundo.",
  m:{geral:"Alguma coisa começa, e é pequena. Promissora e frágil na mesma medida — o cuidado que você tiver nas primeiras semanas define se vira algo.",
     amor:"Começo de história, paquera, leveza que você já não lembrava. Ou o assunto filhos entrando na conversa de um jeito que muda o resto.",
@@ -710,6 +783,7 @@ const BARALHO = [
  k:"astúcia, emprego, desconfiança, sobrevivência",
  e:"tem esperteza em jogo e nem tudo é o que parece",
  i:"com cálculo e alguma segunda intenção por trás",
+ p:"O que você aceitou sem conferir?",
  c:"Desconfie com elegância. Confirme, documente, e não avise que está conferindo.",
  m:{geral:"Tem esperteza em jogo, e nem tudo é o que parece. Não é paranoia: é a leitura correta de que alguém está calculando mais do que dizendo.",
     amor:"Alguém não está sendo inteiro com você. Também acontece de o autoengano ser seu, porque a versão conveniente é mais confortável que a verdadeira.",
@@ -723,6 +797,7 @@ const BARALHO = [
  k:"poder, força, proteção, autoridade",
  e:"tem uma figura forte no comando, e ela pesa na sala",
  i:"sob a influência de alguém com poder de verdade",
+ p:"Onde você tem mais poder do que está usando?",
  c:"Use o seu peso. Aqui você tem mais força do que está exercendo.",
  m:{geral:"Tem uma figura forte no comando, e ela pesa na sala. Pode ser outra pessoa, pode ser a sua própria capacidade de impor limite quando você decide usá-la.",
     amor:"Parceiro protetor — ou controlador, e a linha entre os dois é mais fina do que parece de dentro. Também: figura materna influenciando a relação.",
@@ -736,6 +811,7 @@ const BARALHO = [
  k:"clareza, inspiração, rumo, sucesso",
  e:"o caminho está claro e confere com o que você quer",
  i:"com clareza suficiente para enxergar o rumo",
+ p:"Se o caminho está claro, o que está te segurando?",
  c:"Siga o que ilumina, mesmo distante. A direção está certa; falta caminhar.",
  m:{geral:"O caminho está claro e é bom. Uma das melhores cartas do baralho: você enxerga o rumo, e o rumo confere com o que você quer de verdade.",
     amor:"Relação com verdade e brilho, dessas que melhoram você. Ou a clareza súbita sobre o que você quer — e sobre o que já não aceita mais.",
@@ -749,6 +825,7 @@ const BARALHO = [
  k:"mudança, transição, renovação, gestação",
  e:"a situação vai mudar de forma, e para melhor",
  i:"trazendo uma mudança de formato para aquilo",
+ p:"Que formato antigo você está tentando preservar?",
  c:"Aceite a mudança em vez de negociar com ela. O formato antigo já não serve.",
  m:{geral:"A situação vai mudar de forma, e para melhor. Não é ruptura: é o que já existe se reorganizando em algo mais adequado ao seu tamanho atual.",
     amor:"A relação muda de patamar. Reconciliação, novo capítulo, morar junto, ou gravidez. O formato antigo já não cabia em vocês.",
@@ -762,6 +839,7 @@ const BARALHO = [
  k:"amizade, lealdade, confiança, apoio",
  e:"tem alguém do seu lado de verdade, sem cobrar nada em troca",
  i:"com apoio leal de quem não pede nada em troca",
+ p:"Quem você não chamou porque não quis incomodar?",
  c:"Chame quem é seu. Você não precisa carregar isso sozinho e não deveria.",
  m:{geral:"Tem alguém do seu lado de verdade, sem cobrar nada em troca. Vale reconhecer quem é, porque essa é a carta mais fácil de desperdiçar por distração.",
     amor:"Companheirismo e lealdade: amizade que virou amor, ou amor que virou parceria sólida. Amor sem sobressalto — o que só decepciona quem confunde paz com tédio.",
@@ -775,6 +853,7 @@ const BARALHO = [
  k:"instituição, isolamento, autoridade, longo prazo",
  e:"tem uma estrutura maior e mais lenta que você envolvida nisso",
  i:"dentro de uma estrutura formal que não obedece ao seu ritmo",
+ p:"Quanto da sua frustração é com a pessoa e quanto é com o sistema?",
  c:"Recolha-se e cumpra o protocolo. Aqui a paciência formal rende mais que a iniciativa.",
  m:{geral:"Tem uma estrutura maior e mais lenta que você envolvida nisso. Regra, hierarquia, protocolo — e o afastamento necessário para conseguir enxergar por cima.",
     amor:"Distanciamento, ou relação formal e fria. Alguém se protegendo atrás de muros que levou anos construindo e não derruba num fim de semana.",
@@ -788,6 +867,7 @@ const BARALHO = [
  k:"público, encontros, exposição, rede",
  e:"isso acontece à vista de todos, no meio das pessoas",
  i:"e passa a acontecer em público, sob o olhar dos outros",
+ p:"O que você deixa de fazer por causa do que os outros vão achar?",
  c:"Apareça. Isso se resolve entre gente, não sozinho no quarto.",
  m:{geral:"Isso acontece à vista de todos. Ganha em oportunidade de encontro, perde em privacidade — e você não controla o que os outros vão comentar.",
     amor:"Conhecer alguém em evento ou aplicativo, relação exposta e comentada. A opinião alheia está entrando na sua relação mais do que devia.",
@@ -801,6 +881,7 @@ const BARALHO = [
  k:"obstáculo, bloqueio, atraso, adversário",
  e:"tem um bloqueio concreto no caminho e ele não sai do lugar sozinho",
  i:"esbarrando num obstáculo que não cede à insistência",
+ p:"Você está tentando derrubar uma parede que dava para contornar?",
  c:"Contorne em vez de escalar. Não é hora de arrombar essa porta.",
  m:{geral:"Tem um bloqueio concreto no caminho, e ele não sai do lugar sozinho nem por insistência. É para contornar, não para arrombar.",
     amor:"Silêncio, distância, obstáculo externo, ou alguém irredutível. Empurrar com mais força só confirma para a outra pessoa que ela deve resistir.",
@@ -814,6 +895,7 @@ const BARALHO = [
  k:"escolha, decisão, bifurcação, alternativa",
  e:"existem opções reais e nenhuma delas é obviamente melhor",
  i:"colocando você diante de uma escolha que não dá para adiar",
+ p:"O que você perde continuando sem escolher?",
  c:"Escolha. Não escolher é a única alternativa que garante perda.",
  m:{geral:"Existem opções reais, e nenhuma delas é obviamente melhor. Não decidir também é decidir, e é a única alternativa que garante perda.",
     amor:"Escolher entre duas pessoas, ou entre ficar e sair. A indecisão prolongada já está machucando mais do que qualquer uma das escolhas machucaria.",
@@ -827,6 +909,7 @@ const BARALHO = [
  k:"perda, desgaste, roubo, estresse",
  e:"alguma coisa está se perdendo aos poucos, sem barulho",
  i:"com um desgaste silencioso corroendo aquilo por dentro",
+ p:"Onde está o vazamento que você já notou e não fechou?",
  c:"Ache o vazamento e feche. O problema não é o valor: é a frequência.",
  m:{geral:"Alguma coisa está se perdendo aos poucos, sem barulho. Nada explode aqui — vai sumindo de pouquinho, e quando se percebe já foi muito.",
     amor:"Desgaste silencioso, afeto que mingua, desconfiança roendo por baixo. Ou alguém drenando você sem que nenhum episódio isolado justifique reclamar.",
@@ -840,6 +923,7 @@ const BARALHO = [
  k:"amor, afeto, sinceridade, perdão",
  e:"o que está em jogo aqui é sentimento, e ele é verdadeiro",
  i:"com sentimento sincero no meio, mudando o peso das coisas",
+ p:"O que você sente e ainda não disse em voz alta?",
  c:"Diga o que você sente, com todas as letras. O cálculo aqui atrapalha.",
  m:{geral:"O que está em jogo aqui é sentimento, e ele é verdadeiro. Tentar resolver isso no cálculo vai produzir uma resposta certa e insatisfatória.",
     amor:"É a carta do amor. Reciprocidade, paixão, reconciliação, declaração — o sentimento existe dos dois lados e está pedindo para ser dito.",
@@ -853,6 +937,7 @@ const BARALHO = [
  k:"compromisso, contrato, aliança, ciclo",
  e:"um acordo se firma e passa a valer para os dois lados",
  i:"selando aquilo num compromisso que passa a obrigar",
+ p:"A que você se comprometeu sem ter combinado com você mesmo?",
  c:"Firme o acordo por escrito. O que não estiver no papel não existe depois.",
  m:{geral:"Um acordo se firma e passa a valer para os dois lados. Dá segurança e tira liberdade na mesma proporção — e as duas coisas são reais.",
     amor:"Namoro firmado, noivado, casamento. Ou um ciclo afetivo que se repete: mesmo tipo de pessoa, mesmo enredo, outro nome.",
@@ -866,6 +951,7 @@ const BARALHO = [
  k:"segredo, estudo, conhecimento, o não revelado",
  e:"tem informação que ainda não chegou até você",
  i:"e parte da informação sobre isso continua escondida",
+ p:"O que você prefere não saber?",
  c:"Estude o assunto antes de opinar. Falta informação que está disponível.",
  m:{geral:"Tem informação que ainda não chegou até você. Ou é segredo de alguém, ou é conhecimento disponível que você ainda não foi buscar.",
     amor:"Alguém está guardando alguma coisa: sentimento não declarado, ou passado não contado. Não necessariamente grave — mas está lá.",
@@ -879,6 +965,7 @@ const BARALHO = [
  k:"documento, mensagem, escrito, comunicação",
  e:"a resposta vem por escrito, e o que está registrado vale mais",
  i:"e chega por um documento ou mensagem, não por conversa",
+ p:"O que você precisa escrever e vem adiando?",
  c:"Escreva. Botar no papel é o que organiza o que está solto na cabeça.",
  m:{geral:"A resposta vem por escrito. Documento, mensagem, notificação — e o que estiver registrado vale mais do que qualquer conversa que já aconteceu.",
     amor:"Uma mensagem que chega, ou uma que você precisa mandar. O que não foi dito de viva voz, escreva — aqui o texto funciona melhor.",
@@ -892,6 +979,7 @@ const BARALHO = [
  k:"o consulente, homem importante, ação",
  e:"a figura masculina central dessa história ocupa o centro da cena",
  i:"por meio de um homem que pesa nessa história",
+ p:"O que você faria se não estivesse esperando permissão?",
  c:"Aja. A situação está esperando você se mover, não amadurecer mais um pouco.",
  m:{geral:"A figura masculina central dessa história. Se a pergunta é sua e você é homem, é você: quem age, decide e assume o que vier.",
     amor:"O parceiro, o pretendente, o homem em quem você pensou ao formular a pergunta. Ele está mais presente no assunto do que você admitiu.",
@@ -905,6 +993,7 @@ const BARALHO = [
  k:"a consulente, mulher importante, intuição",
  e:"a figura feminina central dessa história ocupa o centro da cena",
  i:"por meio de uma mulher que pesa nessa história",
+ p:"Que percepção sua você desqualificou por não ter prova?",
  c:"Confie no que você percebeu. A leitura que você fez está certa.",
  m:{geral:"A figura feminina central dessa história. Se a pergunta é sua e você é mulher, é você: quem sente, percebe e sustenta o que os outros não veem.",
     amor:"A parceira, a pretendente, a mulher em quem você pensou ao formular a pergunta. Ela pesa nesse assunto mais do que aparece.",
@@ -918,6 +1007,7 @@ const BARALHO = [
  k:"maturidade, paz, ética, sexualidade",
  e:"tem maturidade e serenidade no fundo disso",
  i:"com a calma de quem já não tem nada a provar",
+ p:"O que ficaria melhor se você simplesmente esperasse mais um pouco?",
  c:"Tenha paciência e mantenha a linha. Aqui a integridade rende mais que a velocidade.",
  m:{geral:"Tem maturidade e serenidade no fundo disso. O tempo aqui é aliado, e a pressa é o único jeito de estragar algo que estava indo bem.",
     amor:"Amor maduro e sereno, ou relação com alguém mais velho. Também aparece como intimidade e sexualidade — a parte adulta e tranquila dela.",
@@ -931,6 +1021,7 @@ const BARALHO = [
  k:"sucesso, energia, vitória, clareza",
  e:"é vitória com energia para sustentar o que vier",
  i:"e isso termina em sucesso, com folga",
+ p:"O que você está fazendo com aquilo que já deu certo?",
  c:"Avance com confiança. Não fique procurando defeito no que está dando certo.",
  m:{geral:"É a melhor carta do baralho. Vitória, clareza e energia para sustentar o que você conquistar — não é sorte passageira, é resultado.",
     amor:"Amor pleno e correspondido, fase luminosa. Aproveite sem ficar procurando o defeito escondido: às vezes está bom porque está bom.",
@@ -944,6 +1035,7 @@ const BARALHO = [
  k:"reconhecimento, emoção, intuição, prestígio",
  e:"tem reconhecimento e emoção forte misturados",
  i:"com forte carga emocional e alguma visibilidade",
+ p:"Quanto do seu julgamento aqui é emoção — e isso é mesmo um problema?",
  c:"Confie no que você sente antes do que te explicam. A leitura emocional está certa.",
  m:{geral:"Reconhecimento e emoção juntos. O que você faz está sendo notado, e isso mexe com você por dentro mais do que você deixa transparecer.",
     amor:"Romance intenso, paixão profunda, sonho afetivo. A emoção está acima da razão aqui — bom para viver, ruim para decidir.",
@@ -957,6 +1049,7 @@ const BARALHO = [
  k:"solução, certeza, abertura, destino",
  e:"a porta abre e a solução é certa, não provável",
  i:"e isso destrava de vez",
+ p:"Se você já sabe a resposta, o que falta para agir?",
  c:"Vá em frente: é isso mesmo. A dúvida que te segurava já foi respondida.",
  m:{geral:"A porta abre. Isso tem solução, e a solução é certa — não provável, não talvez. A dúvida que te segurava já foi respondida.",
     amor:"O entendimento que finalmente destrava o casal, ou a certeza sobre a pessoa. Também: relação com cara de destino, e é.",
@@ -970,6 +1063,7 @@ const BARALHO = [
  k:"dinheiro, fluxo, negócios, abundância",
  e:"tem dinheiro e recursos circulando nessa história",
  i:"com dinheiro entrando na conta dessa história",
+ p:"O que você está segurando por medo em vez de deixar circular?",
  c:"Deixe circular. O que você retém por medo é o que para de render.",
  m:{geral:"Dinheiro e recursos circulando. Aqui a lógica é de fluxo: o que se move rende, o que se represa estraga.",
     amor:"Relação em que se divide o material: contas, casa, projetos. Ou alguém de posses no assunto — o que traz conforto e complica o equilíbrio.",
@@ -983,6 +1077,7 @@ const BARALHO = [
  k:"estabilidade, persistência, trabalho fixo, porto",
  e:"isso se fixa e permanece",
  i:"e aquilo se fixa, para o bem ou para o cansaço",
+ p:"Isso é estabilidade ou é você parado?",
  c:"Fique e persista. A constância é o que vai resolver, não uma virada.",
  m:{geral:"Isso se fixa e permanece. Ótimo quando é bom, cansativo quando não é — e aqui é você que decide qual dos dois.",
     amor:"Relação duradoura que resiste ao tempo. Ou uma rotina que já não muda, e que você chama de estabilidade porque a outra palavra é pior.",
@@ -996,6 +1091,7 @@ const BARALHO = [
  k:"fardo, destino, provação, fé",
  e:"tem um peso a carregar e ele não foi escolhido",
  i:"transformando aquilo num fardo que precisa ser atravessado",
+ p:"Quanto desse peso é seu de verdade, e quanto você aceitou carregar?",
  c:"Atravesse em vez de contornar. E não atravesse sozinho.",
  m:{geral:"Tem um peso a carregar, e ele não foi escolhido. A boa notícia é que fardo tem fim; a má é que o fim vem por atravessar, não por contornar.",
     amor:"Relação que pesa, sacrifício por amor, culpa afetiva. Vale perguntar quanto disso é dedicação e quanto é penitência.",
@@ -1414,6 +1510,289 @@ function tiraCartas(){
 }
 
 /* ============================================================
+   COMO ENCAIXAR NA VIDA — hipóteses de leitura
+   Cada padrão olha a sequência inteira; o texto muda por tema.
+   Mostra no máximo três, por ordem de especificidade.
+   ============================================================ */
+const tem = (cs, ns) => cs.filter(c => ns.includes(c.n)).length;
+
+const PADROES = [
+{id:"pessoa", prio:1,
+ quando:cs => tem(cs,[28,29]) > 0,
+ t:{amor:"Saiu uma carta de pessoa. Se você tinha alguém específico na cabeça ao perguntar, é dessa pessoa que a leitura está tratando. Vale reler as cartas vizinhas como descrição do que ela está vivendo — e não como instrução do que você deveria fazer.",
+    trabalho:"Uma carta de pessoa apareceu. Isso costuma indicar que o assunto depende mais de alguém específico do que do seu esforço. Identificar quem é essa pessoa vale mais do que qualquer plano que você monte sozinho.",
+    familia:"A figura de pessoa aponta para alguém concreto da família. As cartas em volta descrevem a posição dessa pessoa na história, o que nem sempre coincide com a sua.",
+    dinheiro:"Tem uma pessoa no centro do assunto financeiro: quem decide, quem paga ou quem administra. A questão provavelmente é menos de número e mais de relação.",
+    saude:"A carta de pessoa aqui costuma ser você mesmo, e não terceiros. Leia o entorno como descrição do seu estado, não do de quem cuida de você.",
+    espiritual:"A figura de pessoa costuma representar você na própria leitura. O que está em volta descreve qual parte sua está em jogo agora.",
+    geral:"Uma carta de pessoa apareceu. Se havia alguém específico na sua cabeça quando você formulou a pergunta, é dessa pessoa que as cartas estão falando."}},
+
+{id:"sem_luz", prio:1,
+ quando:cs => cs.length >= 3 && cs.every(c => c.t !== "luz"),
+ t:{amor:"Nenhuma carta de luz saiu. Isso não anuncia desastre: costuma descrever um assunto que ainda não amadureceu o suficiente para dar resposta boa. Perguntar de novo daqui a algumas semanas tende a render mais que insistir agora.",
+    trabalho:"A mesa veio sem nenhuma carta favorável. Normalmente indica que a pergunta foi feita cedo demais, ou que ela está mirando a coisa errada — o problema real pode ser outro.",
+    familia:"Nenhuma luz na mesa. Costuma apontar para um assunto que precisa ser tratado antes de qualquer aproximação, e não durante ela.",
+    dinheiro:"Sem cartas favoráveis. O desenho sugere segurar decisões grandes e trabalhar o básico até o quadro mudar.",
+    saude:"Nenhuma carta de luz. Leia como pedido de atenção e de acompanhamento profissional, não como prognóstico — carta nenhuma sabe disso.",
+    espiritual:"A mesa veio fechada. Costuma indicar que a resposta ainda não está disponível, e que insistir na pergunta agora só produz ruído.",
+    geral:"Nenhuma carta de luz saiu. Isso costuma dizer mais sobre o momento da pergunta do que sobre o desfecho do assunto."}},
+
+{id:"bloqueio", prio:2,
+ quando:cs => cs.some((c,i) => i > 0 && c.t === "sombra" && cs[i-1].t === "sombra"),
+ t:{amor:"Duas cartas difíceis coladas costumam descrever repetição, e não azar. Se você reconhece esse padrão de outras vezes — com essa pessoa ou com outras —, é exatamente aí que a leitura está apontando.",
+    trabalho:"Cartas pesadas em sequência raramente falam de um evento isolado. Costuma ser estrutura: alguma coisa no arranjo do trabalho que produz o mesmo problema de tempos em tempos.",
+    familia:"Sombras coladas costumam indicar assunto crônico, daqueles que a família aprendeu a contornar sem nunca resolver. O contorno já virou parte do problema.",
+    dinheiro:"Duas cartas pesadas seguidas apontam mais para hábito do que para acidente. Vale olhar o que se repete todo mês antes de olhar o susto do mês passado.",
+    saude:"Sequência pesada costuma descrever acúmulo, não crise súbita. Se alguma coisa vem se arrastando há tempo, é dela que a leitura está falando.",
+    espiritual:"Duas sombras juntas costumam indicar lição repetida. A pergunta útil não é por que isso acontece de novo, e sim o que você faz igual todas as vezes.",
+    geral:"Cartas difíceis em sequência costumam descrever um padrão que se repete, e não um golpe isolado do acaso."}},
+
+{id:"melhora", prio:2,
+ quando:cs => cs.length >= 3 && cs[0].t !== "luz" && cs[cs.length-1].t === "luz",
+ t:{amor:"A sequência abre pesada e fecha clara. Se você está no meio de uma fase ruim com alguém, o desenho sugere que o pior já ficou para trás — e que o que vem depende menos de uma atitude nova sua do que de atravessar o intervalo sem forçar.",
+    trabalho:"Começa difícil e termina bem. Se a pergunta é sobre uma decisão, a leitura não está dizendo que o caminho é fácil: está dizendo que o desconforto do começo não é sinal de erro.",
+    familia:"O arco vai do peso para o alívio. Se há uma situação travada em casa, ela tende a se resolver — depois de um período em que vai parecer que não.",
+    dinheiro:"Aperta no começo e afrouxa no fim. Se você está avaliando um risco, o desenho sugere que a fase difícil é travessia, e não destino.",
+    saude:"O arco melhora. Se você vem de um período ruim, a leitura aponta recuperação — o que descreve direção e não substitui acompanhamento.",
+    espiritual:"Sai do escuro para o claro. Se você está numa fase de dúvida, o desenho sugere que ela tem prazo, e que o fim dela não é o que você teme.",
+    geral:"A sequência melhora do começo para o fim. O que estiver pesando agora tende a ser fase, e não estado permanente."}},
+
+{id:"piora", prio:2,
+ quando:cs => cs.length >= 3 && cs[0].t === "luz" && cs[cs.length-1].t === "sombra",
+ t:{amor:"Começa bem e termina pesado. Isso raramente anuncia catástrofe: costuma descrever algo que está bom agora e que vai cobrar um preço se ninguém mexer. Vale perguntar o que você está adiando enquanto está confortável.",
+    trabalho:"O arco desce. Se alguma coisa está funcionando hoje, a leitura sugere que o formato atual não se sustenta — e que o problema aparece depois, não agora.",
+    familia:"Abre leve e fecha pesado. Costuma indicar um assunto que todo mundo está deixando passar e que volta maior mais adiante.",
+    dinheiro:"A curva desce. Se a situação está confortável, o desenho pede que você olhe o médio prazo em vez do saldo de hoje.",
+    saude:"Vai de bem para pesado. Não é previsão de doença: é sugestão de que o ritmo atual não se sustenta no formato em que está.",
+    espiritual:"O desenho desce. Costuma apontar para alguma coisa que você está evitando encarar justamente enquanto o clima ainda permite evitar.",
+    geral:"A sequência piora do começo para o fim. Isso normalmente aponta um custo adiado, e não uma tragédia a caminho."}},
+
+{id:"pico_sombrio", prio:2,
+ quando:cs => cs.length >= 3 && cs[0].t === "luz" && cs[cs.length-1].t === "luz" && cs.slice(1,-1).some(c => c.t === "sombra"),
+ t:{amor:"O difícil está no meio do caminho, não nas pontas. Costuma descrever obstáculo de percurso: alguma coisa que complica a travessia sem mudar o destino. Vale não confundir o pedregulho com o fim da estrada.",
+    trabalho:"A dificuldade aparece no meio e não no fim. Sugere problema de execução, e não de escolha — o rumo está certo, o trecho é que é ruim.",
+    familia:"O peso está no miolo da história. Normalmente indica um episódio ou uma pessoa que complica a passagem, sem determinar como aquilo termina.",
+    dinheiro:"O aperto é no meio do percurso. Sugere um período de caixa curto dentro de um plano que, no conjunto, se sustenta.",
+    saude:"O difícil está no meio. Costuma descrever uma fase ruim dentro de um processo que segue na direção certa.",
+    espiritual:"A sombra está no meio do arco. Provação de travessia, dessas que testam sem mudar para onde você vai.",
+    geral:"O difícil está no meio, e não nas pontas. Costuma indicar obstáculo de percurso: atrapalha a travessia sem determinar onde ela termina."}},
+
+{id:"alivio_meio", prio:2,
+ quando:cs => cs.length >= 3 && cs[0].t === "sombra" && cs[cs.length-1].t === "sombra" && cs.slice(1,-1).some(c => c.t === "luz"),
+ t:{amor:"Há um alívio no meio, entre duas partes pesadas. Costuma descrever uma trégua real, porém curta — e o erro comum é tomar a trégua por solução e parar de trabalhar o resto.",
+    trabalho:"O bom está no meio, cercado dos dois lados. Sugere melhora pontual que não muda a estrutura em volta dela.",
+    familia:"Um respiro entre dois pesos. Costuma indicar reaproximação que acontece de fato, mas que não resolve o que causou o afastamento.",
+    dinheiro:"Um alívio de caixa entre duas fases apertadas. Vale usá-lo para reduzir dívida, e não para afrouxar o controle.",
+    saude:"Melhora no meio, cercada. Costuma descrever período de trégua dentro de um quadro que ainda pede acompanhamento.",
+    espiritual:"Uma clareira entre duas partes escuras. Serve para respirar e se orientar, não para acampar.",
+    geral:"O alívio está no meio, entre duas partes pesadas. Costuma ser trégua real e curta — útil se aproveitada, enganosa se confundida com solução."}},
+
+{id:"tudo_luz", prio:3,
+ quando:cs => cs.length >= 3 && cs.every(c => c.t === "luz"),
+ t:{amor:"Todas as cartas vieram favoráveis. Quando isso acontece, o risco não é o assunto: é você não aproveitar por estar procurando a pegadinha que não está lá.",
+    trabalho:"Mesa inteiramente favorável. O erro possível aqui é hesitar tanto conferindo que a janela fecha sozinha.",
+    familia:"Tudo favorável. Vale marcar esse momento na memória — é dele que você vai precisar lembrar nos meses difíceis.",
+    dinheiro:"Mesa aberta do começo ao fim. Bom momento para consolidar, e não para aumentar o padrão inteiro de uma vez.",
+    saude:"Todas as cartas favoráveis. Aproveite a fase boa para fazer o que se adia quando se está mal: exame em dia, rotina ajustada.",
+    espiritual:"Mesa inteira em luz. Costuma indicar alinhamento — e o único jeito de estragar é ficar pedindo mais confirmação.",
+    geral:"Todas as cartas vieram favoráveis. O risco aqui não é o assunto: é você não agir por desconfiar da sorte."}},
+
+{id:"lento", prio:3,
+ quando:cs => tem(cs,[5,19,21,30,35]) >= 2,
+ t:{amor:"Saíram duas ou mais cartas de tempo longo. Seja qual for a resposta, ela não acontece nesta semana. Se você está esperando um sinal rápido, a leitura está avisando que ele não vem nesse formato.",
+    trabalho:"Várias cartas de tempo longo na mesa. O assunto se resolve em escala de meses, não de dias — e cobrar de si mesmo velocidade aqui só produz frustração.",
+    familia:"Cartas de tempo longo predominam. Assunto de família nessa configuração costuma andar em anos, e a pressa costuma retroceder o que já avançou.",
+    dinheiro:"O desenho é de prazo longo. Trate como construção, não como oportunidade — o dinheiro aqui responde a constância.",
+    saude:"Cartas de tempo longo. Sugere processo gradual, com melhora medida em semanas e não em dias.",
+    espiritual:"Predominam cartas de maturação. O que está em jogo pede tempo de forno, e abrir a porta antes estraga.",
+    geral:"Saíram duas ou mais cartas de tempo longo. Ajuste a expectativa de prazo antes de julgar o resultado."}},
+
+{id:"rapido", prio:3,
+ quando:cs => tem(cs,[1,2,3,10,17]) >= 2,
+ t:{amor:"Várias cartas de movimento. O assunto muda de figura rápido — o que também significa que ler de novo daqui a uma semana pode dar outro resultado, e isso não é defeito da leitura.",
+    trabalho:"Cartas de movimento predominam. As coisas acontecem em prazo curto aqui, então a janela de decisão é menor do que você imagina.",
+    familia:"Muito movimento na mesa. Costuma indicar mudança concreta e próxima: alguém chegando, alguém saindo, arranjo se refazendo.",
+    dinheiro:"Cartas de movimento. Dinheiro entrando ou saindo em prazo curto — o que pede decisão rápida e conferência dobrada.",
+    saude:"Predominam cartas de movimento. Sugere quadro que muda depressa, para melhor ou pior, e que merece acompanhamento próximo.",
+    espiritual:"Muito movimento. A fase é de trânsito, e tentar concluir alguma coisa definitiva agora é pedir demais do momento.",
+    geral:"Saíram duas ou mais cartas de movimento. O assunto anda rápido, e a leitura tem validade curta."}},
+
+{id:"palavra", prio:4,
+ quando:cs => tem(cs,[12,26,27]) >= 1,
+ t:{amor:"Apareceu carta de palavra — conversa, segredo ou mensagem. Costuma indicar que o nó está no que não foi dito, e não no que foi feito. A parte prática da leitura pode ser simplesmente uma conversa que você vem evitando.",
+    trabalho:"Carta de comunicação na mesa. Sugere que o assunto se decide na informação: um e-mail, um documento, uma conversa direta com quem decide.",
+    familia:"Saiu carta de palavra. Em família isso quase sempre aponta para o assunto que ninguém nomeia — e que perde metade do peso quando é finalmente dito.",
+    dinheiro:"Carta de informação na mesa. Antes de decidir, vá atrás do número exato: extrato, contrato, o valor cheio em vez da parcela.",
+    saude:"Carta de informação. Sugere que falta dado — exame, laudo, segunda opinião — mais do que falta decisão.",
+    espiritual:"Saiu carta de palavra. Escrever o que você está vivendo tende a organizar mais que continuar remoendo.",
+    geral:"Apareceu carta de palavra. O assunto provavelmente passa por informação ou por conversa, e não por ação direta."}},
+
+{id:"material", prio:4,
+ quando:cs => tem(cs,[15,34]) >= 1,
+ tema_diferente:"dinheiro",
+ t:{amor:"Uma carta de recurso material saiu num assunto de amor. Costuma indicar que dinheiro, moradia ou dependência financeira estão dentro dessa história mais do que se costuma admitir em voz alta.",
+    trabalho:"Carta de recurso material na mesa. O assunto tem componente de dinheiro ou de poder concreto, e ignorá-lo para ficar só no mérito costuma sair caro.",
+    familia:"Saiu carta de recurso. Em família, isso costuma apontar para herança, sustento ou para quem paga o quê — assuntos que raramente aparecem na conversa oficial.",
+    saude:"Carta de recurso material num assunto de saúde. Costuma indicar custo de tratamento, plano ou o peso financeiro do cuidado.",
+    espiritual:"Uma carta material apareceu num assunto de caminho. Sugere que a questão prática não pode ser espiritualizada para longe: ela faz parte.",
+    geral:"Saiu carta de recurso material. Alguma parte desse assunto é concreta — dinheiro, poder ou dependência — mesmo que a pergunta não fosse sobre isso."}},
+
+{id:"escolha", prio:4,
+ quando:cs => tem(cs,[22,6]) >= 1,
+ t:{amor:"Carta de indefinição na mesa. A leitura sugere que o assunto está esperando uma escolha ou um esclarecimento — e que ele não avança sozinho enquanto isso não acontecer.",
+    trabalho:"Saiu carta de escolha ou de névoa. Costuma indicar decisão pendente, ou informação que precisa chegar antes de qualquer decisão fazer sentido.",
+    familia:"Carta de indefinição. Sugere assunto em suspenso, à espera de alguém tomar posição — provavelmente você.",
+    dinheiro:"Carta de indefinição num assunto de dinheiro. Antes de decidir, feche a lacuna de informação: o que falta saber costuma ser exatamente o que muda a conta.",
+    saude:"Saiu carta de dúvida. Sugere que o próximo passo é esclarecer, não escolher — investigar antes de tratar.",
+    espiritual:"Carta de encruzilhada. O momento é de escolha consciente, e adiar aqui também é uma escolha, só que feita por omissão.",
+    geral:"Saiu carta de escolha ou de névoa. Alguma coisa está em suspenso, e a leitura sugere que ela não se resolve sozinha."}}
+];
+
+const NAO_DIZ = {
+  amor:"Nada aqui diz o que a outra pessoa sente. As cartas descrevem o campo em volta da questão, não o interior de alguém que não está na mesa.",
+  trabalho:"A leitura não substitui a informação que você pode ir buscar — número, contrato, conversa direta. Ela organiza o que você já sabe.",
+  familia:"As cartas descrevem o clima, não distribuem culpa. Se a leitura te deu razão contra alguém, desconfie da leitura.",
+  dinheiro:"Nada disso é recomendação financeira. Nenhuma carta conhece o seu extrato.",
+  saude:"Nenhuma carta diagnostica. Se há sintoma, a próxima consulta vale mais que a próxima tiragem.",
+  espiritual:"A leitura não define destino. Ela descreve o momento, e o momento muda conforme o que você faz dentro dele.",
+  geral:"As cartas organizam o que você já intui. Elas não trazem informação que ninguém tem."
+};
+
+/* ============================================================
+   CENÁRIOS — "na prática, isso pode aparecer assim"
+   Três situações por tema, cada uma em versão favorável e difícil.
+   A escolha vem do clima da mesa; num empate, alterna.
+   ============================================================ */
+const CENARIOS = {
+amor:[
+ {se:"Se você está numa relação agora",
+  bom:"a leitura costuma descrever um vínculo que aguenta mais do que vocês dois imaginam. O trabalho aqui não é salvar nada: é reparar no que já funciona e parar de testar.",
+  ruim:"costuma apontar um desgaste que os dois já sentem e ninguém nomeou. O primeiro passo raramente é a grande conversa — é uma pergunta pequena, feita numa hora calma."},
+ {se:"Se você está sozinho neste momento",
+  bom:"isso quase nunca significa alguém batendo à porta na semana que vem. Costuma descrever você ficando disponível de novo, que é a condição para o resto acontecer.",
+  ruim:"a leitura fala menos de escassez e mais de um cansaço que você ainda não descansou. Procurar alguém agora tende a repetir exatamente o padrão que você quer evitar."},
+ {se:"Se você tinha alguém específico em mente",
+  bom:"as cartas descrevem o campo em volta dessa pessoa, e ele está aberto. O que elas não fazem é dizer o que ela sente — isso continua sendo assunto de conversa, não de tiragem.",
+  ruim:"as cartas apontam obstáculo, e obstáculo não é veredito. Vale separar três coisas que costumam vir embaralhadas: o que é a pessoa, o que é o momento dela, e o que é a sua expectativa sobre os dois."}],
+
+trabalho:[
+ {se:"Se você está empregado e pensando em sair",
+  bom:"a leitura sugere que a mudança tem base, e que o frio na barriga é do tamanho normal de uma mudança — não é aviso disfarçado.",
+  ruim:"sugere segurar o pulo até o quadro clarear. Sair de um lugar ruim para um indefinido costuma trocar um problema conhecido por três novos."},
+ {se:"Se há atrito ou disputa no seu trabalho",
+  bom:"o desenho favorece você, o que não significa ganhar no grito. Registro, paciência e conversa com quem decide rendem mais aqui do que ter razão.",
+  ruim:"o desenho não te favorece no confronto direto. Documentar e esperar costuma preservar mais do que reagir agora, por mais injusto que pareça."},
+ {se:"Se a pergunta é sobre um projeto seu",
+  bom:"as cartas apontam tração. O risco é você se dispersar em várias frentes justamente quando uma delas começou a pegar.",
+  ruim:"as cartas apontam esforço mal distribuído. Vale checar se você está resolvendo o problema certo antes de trabalhar mais horas nele."}],
+
+familia:[
+ {se:"Se há um conflito aberto em casa",
+  bom:"a leitura sugere abertura real do outro lado, mesmo que o histórico diga o contrário. O gesto pequeno costuma funcionar melhor do que a conversa definitiva.",
+  ruim:"sugere que o assunto ainda não está maduro para ser tratado de frente. Reduzir o contato sem romper costuma ser mais eficaz do que forçar entendimento."},
+ {se:"Se a questão envolve cuidar de alguém",
+  bom:"as cartas indicam que você não está tão sozinho nisso quanto sente. Vale testar pedir ajuda de forma específica, com dia e tarefa, em vez de genérica.",
+  ruim:"as cartas apontam sobrecarga acumulada. Dividir a carga não é abandono, e adiar essa divisão costuma cobrar do seu corpo antes de cobrar do resto."},
+ {se:"Se você está reavaliando um vínculo antigo",
+  bom:"o desenho favorece a reaproximação, desde que sem cobrança retroativa. Recomeçar do zero rende mais do que auditar o passado.",
+  ruim:"o desenho sugere que distância pode ser cuidado, e não punição. Nem todo vínculo de família precisa ser reparado para você ficar em paz."}],
+
+dinheiro:[
+ {se:"Se você está decidindo uma compra ou um investimento",
+  bom:"a leitura favorece a decisão, desde que ela caiba no seu mês sem apertar. Fase boa não é o mesmo que folga infinita.",
+  ruim:"a leitura pede que você adie ou reduza o tamanho. Se a conta só fecha no melhor cenário, ela não fecha."},
+ {se:"Se você está apertado neste mês",
+  bom:"as cartas apontam alívio a caminho. Vale decidir o destino desse alívio antes de ele chegar, senão ele evapora sem deixar rastro.",
+  ruim:"as cartas apontam que o aperto tem causa estrutural, e não pontual. Cortar o gasto recorrente rende muito mais do que cortar o eventual."},
+ {se:"Se a questão envolve dinheiro com outra pessoa",
+  bom:"o desenho favorece o acordo. Combine por escrito mesmo entre próximos: o papel protege a relação, não a ameaça.",
+  ruim:"o desenho recomenda cautela. Emprestar ou entrar em sociedade nessa configuração costuma custar o dinheiro e a relação, nessa ordem."}],
+
+saude:[
+ {se:"Se você tem um sintoma concreto agora",
+  bom:"a leitura sugere evolução favorável — o que não dispensa a consulta que você marcou, ou que deveria marcar.",
+  ruim:"a leitura sugere que isso não vai passar sozinho. Trate a tiragem como empurrão para procurar atendimento, e não como diagnóstico."},
+ {se:"Se a questão é cansaço ou esgotamento",
+  bom:"as cartas indicam recuperação ao alcance com ajuste de rotina, e não com uma virada radical de vida.",
+  ruim:"as cartas indicam acúmulo real. Descanso aqui é intervenção, não recompensa por produtividade cumprida."},
+ {se:"Se você está tentando firmar um hábito",
+  bom:"o desenho favorece a constância. Comece menor do que parece necessário — é assim que pega.",
+  ruim:"o desenho sugere que o obstáculo não é força de vontade, e sim algo na rotina que sabota. Ajuste o ambiente antes de ajustar a disciplina."}],
+
+espiritual:[
+ {se:"Se você está em dúvida sobre o rumo",
+  bom:"a leitura sugere que você já sabe mais do que admite, e está pedindo confirmação por medo de errar sozinho.",
+  ruim:"a leitura sugere que a resposta ainda não está disponível, e que a pressa por clareza é justamente o que está produzindo a confusão."},
+ {se:"Se você está atravessando uma perda ou uma mudança",
+  bom:"as cartas apontam que a travessia está mais adiantada do que parece de dentro dela.",
+  ruim:"as cartas apontam que ainda é cedo, e que apressar isso costuma prolongar. Não existe prazo certo, e o seu não está errado."},
+ {se:"Se a pergunta era sobre sentido, e não sobre um fato",
+  bom:"o desenho sugere que o sentido vem do que você constrói agora, e não de uma revelação que ainda falta chegar.",
+  ruim:"o desenho sugere que a busca por sentido está servindo para adiar uma decisão concreta e chata que você já identificou."}],
+
+geral:[
+ {se:"Se você tinha uma decisão em mente ao perguntar",
+  bom:"a leitura favorece agir, e o que falta provavelmente é permissão sua, não informação nova.",
+  ruim:"a leitura pede mais informação antes de decidir. Decidir sob pressão nessa configuração costuma sair caro."},
+ {se:"Se você perguntou por inquietação, sem um fato específico",
+  bom:"as cartas sugerem que o desconforto é de transição, e não de erro. Vale observar antes de mudar qualquer coisa.",
+  ruim:"as cartas sugerem que a inquietação tem uma causa concreta que você ainda não nomeou. Procure a causa antes de tratar isso como ansiedade solta."},
+ {se:"Se a pergunta envolvia outra pessoa",
+  bom:"o desenho favorece a aproximação. As cartas descrevem o campo em volta, e o campo está aberto.",
+  ruim:"o desenho aponta atrito. Separe o que depende de você do que não depende — a segunda parte é a que consome energia à toa."}]
+};
+
+function redigirCenarios(clima, pega){
+  const lista = CENARIOS[estado.tema] || CENARIOS.geral;
+  const claro = clima.chave === "claro" || clima.chave === "favoravel";
+  const escuro = clima.chave === "pesado" || clima.chave === "dificil";
+  return lista.map((c, i) => {
+    const bom = claro ? true : escuro ? false : i % 2 === 0;   /* empate: alterna */
+    return `<li><strong>${c.se}</strong>, ${bom ? c.bom : c.ruim}</li>`;
+  }).join("");
+}
+
+function redigirEncaixe(){
+  const cs = estado.cartas;
+  const tema = estado.tema;
+  const pega = fazSorteador(estado.semente ^ 0x5BF03635);
+
+  const achados = PADROES
+    .filter(p => (!p.tema_diferente || p.tema_diferente !== tema) && p.t[tema] && p.quando(cs))
+    .sort((a, b) => a.prio - b.prio)
+    .slice(0, 3);
+
+  let hipoteses;
+  if(achados.length){
+    hipoteses = achados.map(p => `<li>${p.t[tema]}</li>`).join("");
+  }else{
+    const dom = cartaDominante(cs, classificaClima(cs));
+    hipoteses = cs.length === 1
+      ? `<li>Uma carta só não desenha arco: ela nomeia o assunto. Leia <strong>${dom.nome}</strong> como o tema do dia e repare onde ele aparece nas próximas horas — costuma se manifestar em algo pequeno e concreto, não numa revelação.</li>`
+      : `<li>A sequência não formou nenhum desenho marcado, o que costuma acontecer quando a pergunta é ampla demais. Nesse caso, leia pela carta mais forte da mesa — <strong>${dom.nome}</strong> — e trate as outras como contexto dela.</li>`;
+  }
+
+  const clima = classificaClima(cs);
+  const dom = cartaDominante(cs, clima);
+
+  return `<div class="bloco encaixe">
+    <span class="rotulo">Como encaixar isso na sua vida</span>
+    <p class="encaixe-intro">Uma tiragem não decide nada por você — ela oferece maneiras de olhar para o que você já vive. O que vem abaixo é exemplo, não veredito: fique com o que reconhecer e descarte o resto sem culpa.</p>
+
+    <span class="sub">O desenho desta tiragem</span>
+    <ul class="hipoteses">${hipoteses}</ul>
+
+    <span class="sub">Na prática, pode aparecer assim</span>
+    <ul class="cenarios">${redigirCenarios(clima, pega)}</ul>
+
+    <p class="ponte-espelho">Se nenhuma das situações acima for a sua, o caminho é o mesmo: pegue <strong>${dom.nome}</strong>, que é a carta que dá o tom, e procure onde ela já está acontecendo na sua semana. Ela costuma aparecer em algo pequeno e concreto antes de aparecer em algo grande.</p>
+
+    <p class="pergunta-espelho">${dom.p}</p>
+    <p class="nao-diz"><strong>O que esta leitura não diz.</strong> ${NAO_DIZ[estado.tema]}</p>
+  </div>`;
+}
+
+/* ============================================================
    LEITURA
    ============================================================ */
 function verbete(c, cargo){
@@ -1434,20 +1813,23 @@ function desenharLeitura(){
   if(abertas === 0){
     html = t.id === "mesa"
       ? `<div class="bloco"><p class="vazio" style="padding:14px">Abrindo a mesa…</p></div>`
-      : `<div class="bloco"><p class="vazio" style="padding:14px">
-      As cartas estão na mesa. Toque em uma de cada vez, sem pressa.</p>
-      <button class="botao discreto" id="btn-virar-todas">Virar todas</button></div>`;
+      : `<div class="bloco"><p class="convite">As cartas estão na mesa, viradas para baixo.<br><strong>Toque em uma de cada vez</strong>, sem pressa.</p>
+      <button class="botao discreto" id="btn-virar-todas">Prefiro virar todas de uma vez</button></div>`;
   }else{
     if(t.id === "simnao"){
       html += desenharSimNao();
+      if(abertas === total) html += redigirEncaixe();
     }else if(t.id === "mesa"){
       html += desenharMesaReal();
+      if(abertas === total) html += redigirEncaixe();
     }else if(abertas === total){
       html += redigirLeitura();
       html += tiraCartas();
       if(total > 1) html += desenharCombinacoes();
+      html += redigirEncaixe();
     }else{
-      html += `<div class="bloco"><span class="rotulo">Reveladas até agora</span>`;
+      html += `<div class="bloco"><span class="rotulo">Viradas até agora — ${abertas} de ${total}</span>
+        <div class="progresso"><span style="width:${Math.round(abertas/total*100)}%"></span></div>`;
       estado.cartas.forEach((c, i) => {
         if(estado.reveladas.has(i)) html += verbete(c, t.pos ? t.pos[i] : "");
       });
